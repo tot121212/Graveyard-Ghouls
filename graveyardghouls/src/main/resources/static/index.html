@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graveyard Ghouls</title>
+</head>
+
+<body>
+    <script type="importmap">
+        {
+            "imports": {
+            "@stomp/stompjs": "https://ga.jspm.io/npm:@stomp/stompjs@7.0.0/esm6/index.js"
+            }
+        }
+    </script>
+    <script async src="https://ga.jspm.io/npm:es-module-shims@1.5.1/dist/es-module-shims.js"
+        crossorigin="anonymous"></script>
+    <script type="module">
+        import { Client } from '@stomp/stompjs';
+
+        const client = new Client({
+            brokerURL: 'ws://localhost:9797/ws',
+            reconnectDelay: 5000,
+            onConnect: () => {
+                client.subscribe('/topic/', message =>
+                    console.log(`${message.body}`)
+                );
+                client.publish({ destination: '/topic/', body: 'Websocket Connected!' });
+            },
+        });
+
+        client.activate();
+    </script>
+</body>
+
+</html>
