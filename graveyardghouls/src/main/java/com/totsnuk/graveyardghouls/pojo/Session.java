@@ -19,4 +19,7 @@ public abstract class Session {
     public void updateLastActivity() {
         this.lastActivity = Instant.now();
     }
+
+    public void closeSession() {
+    }
 }

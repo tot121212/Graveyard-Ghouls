@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import com.totsnuk.graveyardghouls.pojo.PlayerSession;
 import com.totsnuk.graveyardghouls.pojo.Session;
 
+import lombok.NoArgsConstructor;
+
 @Service
+@NoArgsConstructor
 public class PlayerSessionService implements SessionService {
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
 
