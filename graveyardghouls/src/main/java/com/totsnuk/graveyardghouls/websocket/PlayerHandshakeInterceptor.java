@@ -15,17 +15,14 @@ import com.totsnuk.graveyardghouls.pojo.PlayerSession;
 import com.totsnuk.graveyardghouls.service.PlayerSessionService;
 
 import jakarta.servlet.http.Cookie;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class PlayerHandshakeInterceptor implements HandshakeInterceptor {
-
     private final PlayerSessionService playerSessionService;
-
-    public PlayerHandshakeInterceptor(PlayerSessionService playerSessionService) {
-        this.playerSessionService = playerSessionService;
-    }
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request,

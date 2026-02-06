@@ -7,15 +7,13 @@ import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
+import lombok.AllArgsConstructor;
+
 @Configuration
 @EnableWebSocketMessageBroker
+@AllArgsConstructor
 public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer {
-
     private final PlayerHandshakeInterceptor handshakeInterceptor;
-
-    public WebSocketConfiguration(PlayerHandshakeInterceptor handshakeInterceptor) {
-        this.handshakeInterceptor = handshakeInterceptor; // injected
-    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {

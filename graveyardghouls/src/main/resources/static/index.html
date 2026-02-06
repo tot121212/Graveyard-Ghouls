@@ -23,14 +23,18 @@
         const client = new Client({
             brokerURL: 'ws://localhost:9797/ws',
             reconnectDelay: 5000,
-            onConnect: () => {
-                client.subscribe('/topic/', message =>
-                    console.log(`${message.body}`)
-                );
-                client.publish({ destination: '/topic/', body: 'Websocket Connected!' });
-            },
+            heartbeatOutgoing: 4000,
         });
-
+        client.onConnect = () => {
+            // Setup all subscriptions
+            client.subscribe('/topic/static', message =>
+                console.log(`${message.body}`)
+            );
+            client.publish({
+                destination: '/topic/static',
+                body: 'Client: Websocket Connected!'
+            });
+        }
         client.activate();
     </script>
 </body>
