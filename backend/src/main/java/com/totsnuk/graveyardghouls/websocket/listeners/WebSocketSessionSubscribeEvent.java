@@ -22,7 +22,8 @@ public class WebSocketSessionSubscribeEvent implements ApplicationListener<Sessi
         String playerId = (String) accessor.getSessionAttributes().get("playerId");
         log.info("Spring STOMP session subscribed: " + "playerId: " + playerId);
         // send user their player session token
-        msg.convertAndSend("/topic/static", "Server: Subscribe established");
+        msg.convertAndSend("/topic/onSubscribe", "Server: Subscribe established");
+        msg.convertAndSend("/topic/sendClientPlayerID", playerId);
     }
 
 }
