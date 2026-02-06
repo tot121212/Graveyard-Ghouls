@@ -52,3 +52,5 @@ buildNumber.properties
 .classpath
 .clinerules/rules.md
 Graveyard-Ghouls.code-workspace
+
+/backend/src/main/resources/static/assets/**
