@@ -72,54 +72,14 @@
             <scope>compile</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.github.eirslett</groupId>
-            <artifactId>frontend-maven-plugin</artifactId>
-            <version>2.0.0</version>
-            <scope>compile</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <!-- NB! Set <version> to the latest released version of frontend-maven-plugin, like in README.md -->
-                <version>2.0.0</version>
-                <executions>
-
-                    <execution>
-                        <id>javascript tests</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run test</arguments>
-                            <workingDirectory>../frontend</workingDirectory> <!--Use system node-->
-                            <skip>true</skip>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>npm run build</id>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run build</arguments>
-                            <workingDirectory>../frontend</workingDirectory>
-                            <skip>true</skip> <!--Use system node-->
-                        </configuration>
-                    </execution>
-
-                </executions>
             </plugin>
 
         </plugins>
