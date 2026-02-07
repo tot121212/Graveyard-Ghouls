@@ -8,4 +8,10 @@ export default defineConfig({
         outDir: '../backend/src/main/resources/static', // change this to your Spring Boot static folder
         emptyOutDir: true, // cleans folder before each build
     },
+    // vite.config.js
+    server: {
+        proxy: {
+            '/api': 'http://localhost:8080'
+        }
+    }
 })
