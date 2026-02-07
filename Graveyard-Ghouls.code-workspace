@@ -6,7 +6,6 @@
     ],
     "settings": {
         "java.compile.nullAnalysis.mode": "automatic",
-        "java.format.settings.url": ".vscode/java-formatter.xml",
         "java.configuration.updateBuildConfiguration": "automatic",
         "files.readonlyInclude": {
             "Graveyard/**": true
@@ -14,6 +13,6 @@
         "files.readonlyExclude": {
             "**/src/main/java/**/graveyard/**": true
         },
-        "java.jdt.ls.vmargs": "-Xms1g -Xmx8g -XX:+UseG1GC"
+        "java.jdt.ls.vmargs": "-Xms1g -Xmx16g -XX:+UseG1GC"
     }
 }
