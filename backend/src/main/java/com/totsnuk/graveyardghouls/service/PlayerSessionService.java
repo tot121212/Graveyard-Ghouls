@@ -1,45 +1,43 @@
 package com.totsnuk.graveyardghouls.service;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
 import com.totsnuk.graveyardghouls.pojo.PlayerSession;
-import com.totsnuk.graveyardghouls.pojo.Session;
 
 import lombok.NoArgsConstructor;
 
 @Service
 @NoArgsConstructor
-public class PlayerSessionService implements SessionService {
-    private final Map<String, Session> sessions = new ConcurrentHashMap<>();
+public class PlayerSessionService implements SessionService<PlayerSession> {
+    private final Map<String, PlayerSession> sessions = new ConcurrentHashMap<>();
 
     @Override
-    public String createSession(String playerId) {
-        String token = UUID.randomUUID().toString();
-        sessions.put(token, new PlayerSession(playerId));
-        return token;
+    public PlayerSession createSession() {
+        String publicId = UUID.randomUUID().toString();
+        String privateId = UUID.randomUUID().toString();
+        PlayerSession session = new PlayerSession(publicId, privateId);
+        sessions.put(publicId, session);
+        return session;
     }
 
     @Override
-    public boolean hasSession(String token) {
-        return sessions.containsKey(token);
+    public PlayerSession getSession(String id) {
+        return sessions.get(id);
     }
 
     @Override
-    public PlayerSession getSession(String token) {
-        return (PlayerSession) sessions.get(token);
+    public void removeSession(String id) {
+        sessions.remove(id);
     }
 
     @Override
-    public Map<String, Session> getAllSessions() {
-        return sessions;
-    }
-
-    @Override
-    public void removeSession(String token) {
-        sessions.remove(token);
+    public Set<PlayerSession> getAllSessions() {
+        return new HashSet<>(sessions.values());
     }
 }

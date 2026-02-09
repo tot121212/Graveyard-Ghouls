@@ -1,18 +1,16 @@
 package com.totsnuk.graveyardghouls.service;
 
-import java.util.Map;
+import java.util.Set;
 
 import com.totsnuk.graveyardghouls.pojo.Session;
 
-public interface SessionService {
+public interface SessionService<T extends Session> {
 
-    public String createSession(String id);
+    public T createSession();
 
-    public boolean hasSession(String token);
+    public T getSession(String id);
 
-    public Session getSession(String token);
+    public void removeSession(String id);
 
-    public Map<String, Session> getAllSessions(); // ConcurrentHashMap
-
-    public void removeSession(String token);
+    public Set<T> getAllSessions();
 }
