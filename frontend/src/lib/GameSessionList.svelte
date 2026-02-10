@@ -1,10 +1,10 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { Api } from "../domain/ApiPaths";
+    import { REST } from "../domain/RestPaths";
     const {
         GameSession: { GET_PAGE, CREATE, GET_TOTAL_SESSIONS },
         User: { LOGIN },
-    } = Api;
+    } = REST;
     import { getJSON } from "../utils/restApi";
     import { EndpointURIBuilder } from "../utils/EndpointUriBuilder";
 
@@ -27,7 +27,7 @@
     function updateTotalSessions() {
         getJSON(
             new EndpointURIBuilder()
-                .addPath(Api.path)
+                .addPath(REST.path)
                 .addPath(GET_TOTAL_SESSIONS.path)
                 .build(),
         ).then((data: any) => {
@@ -41,7 +41,7 @@
     function queryForPage(pageNumber: number, size: number) {
         updateTotalSessions();
         const query: string = new EndpointURIBuilder()
-            .addPath(Api.path)
+            .addPath(REST.path)
             .addPath(GET_TOTAL_SESSIONS.path)
             .addQuery(GET_PAGE.queries.PAGE_NUMBER, pageNumber)
             .addQuery(GET_PAGE.queries.SIZE, size)

@@ -1,5 +1,5 @@
-export const Api = {
-    path: "/api",
+export const REST = {
+    path: "api",
     GameSession: {
         GET_PAGE: {
             path: "getGameSessionPage",
