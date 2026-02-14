@@ -7,12 +7,17 @@
     "settings": {
         "java.compile.nullAnalysis.mode": "automatic",
         "java.configuration.updateBuildConfiguration": "automatic",
-        "files.readonlyInclude": {
-            "Graveyard/**": true
-        },
-        "files.readonlyExclude": {
-            "**/src/main/java/**/graveyard/**": true
-        },
-        "java.jdt.ls.vmargs": "-Xms1g -Xmx16g -XX:+UseG1GC"
+        "java.jdt.ls.vmargs": "-Xms1g -Xmx16g -XX:+UseG1GC",
+
+        "java.settings.url": "",
+        "java.format.enabled": true,
+        "java.format.settings.url": ".vscode/eclipse-java-google-style.xml",
+        "java.format.settings.profile": "",
+
+        "java.codeGeneration.generateComments": false,
+        "java.inlayHints.variableTypes.enabled": false,
+
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true
     }
 }
