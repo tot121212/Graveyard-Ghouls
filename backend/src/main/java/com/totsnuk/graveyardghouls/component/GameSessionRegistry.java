@@ -9,14 +9,14 @@ import org.springframework.stereotype.Component;
 import com.totsnuk.graveyardghouls.pojo.GameSession;
 
 @Component
-public class GameSessionRegistry implements SessionRegistry<GameSession> {
+public class GameSessionRegistry implements PublicRegistry<GameSession> {
     /** SessionId to Session */
     private final Map<String, GameSession> sessions = new ConcurrentHashMap<>();
 
     @Override
     public GameSession add(GameSession session) {
         if (session == null || session.getId() == null) {
-            throw new IllegalArgumentException("PlayerSession or id cannot be null");
+            throw new IllegalArgumentException("GameSession or id cannot be null");
         }
         sessions.put(session.getId(), session);
         return session;

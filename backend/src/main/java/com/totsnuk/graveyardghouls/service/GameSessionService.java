@@ -1,46 +1,68 @@
 package com.totsnuk.graveyardghouls.service;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.stereotype.Service;
 
+import com.totsnuk.graveyardghouls.component.GameSessionRegistry;
+import com.totsnuk.graveyardghouls.dto.JoinDto;
+import com.totsnuk.graveyardghouls.dto.rest.JoinGameResponse;
 import com.totsnuk.graveyardghouls.pojo.GameSession;
 
-import lombok.NoArgsConstructor;
+import jakarta.annotation.Nullable;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Handles the storage of and interaction with the game session
+ */
 @Service
-@NoArgsConstructor
-public class GameSessionService implements SessionService<GameSession> {
-    private final Map<String, GameSession> sessions = new ConcurrentHashMap<>();
+@AllArgsConstructor
+@Slf4j
+public class GameSessionService {
+    private final GameSessionRegistry gameSessionRegistry;
 
-    @Override
-    public GameSession createSession() {
-        String id = UUID.randomUUID().toString();
-        GameSession session = new GameSession(id);
-        sessions.put(id, session);
-        return session;
+    /**
+     * @return Session id for game
+     */
+    public String create() {
+        return gameSessionRegistry.add(new GameSession()).getId();
     }
 
-    @Override
-    public GameSession getSession(String id) {
-        return sessions.get(id);
+    public JoinDto join(String gid) {
+        join(gid, null, null, null);
     }
 
-    @Override
-    public void removeSession(String id) {
-        sessions.remove(id);
+    /**
+     * - Triggered when a user requests to join a game session
+     * 
+     * @return Player ID for this particular user in the session
+     */
+    public JoinDto join(
+            String gid,
+            @Nullable String participantId,
+            @Nullable String privateToken) {
+
+        // find game session
+        GameSession gameSession = gameSessionRegistry.get(gid);
+        if (gameSession == null)
+            return null;
+        if (participantId == null || privateToken == null) {
+            return gameSession.connect();
+        }
+        return gameSession.reconnect(participantId, privateToken);
     }
 
-    @Override
-    public Set<GameSession> getAllSessions() {
-        return new HashSet<>(sessions.values());
-    }
-
-    public int getSessionMapSize() {
-        return sessions.size();
+    /**
+     * Triggered when user requests to leave a game session
+     * 
+     * @param gid
+     * @param pid
+     */
+    public boolean leave(String gid, String privateToken) {
+        GameSession gameSession = gameSessionRegistry.get(gid);
+        if (gameSession == null) {
+            log.warn("gameSession not found");
+            return false;
+        }
+        return gameSession.disconnect(privateToken);
     }
 }

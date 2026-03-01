@@ -1,5 +1,7 @@
 package com.totsnuk.graveyardghouls.pojo;
 
-public class Action {
+public interface Action {
+    Enum<?> getElement();
 
+    Record getPayload();
 }

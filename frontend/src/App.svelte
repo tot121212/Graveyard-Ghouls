@@ -1,7 +1,7 @@
 <script lang="ts">
-    import GameSessionList from "./lib/GameSessionList.svelte";
+    import JoinGameButton from "./lib/JoinGameButton.svelte";
 </script>
 
 <main>
-    <GameSessionList />
+    <JoinGameButton />
 </main>

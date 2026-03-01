@@ -11,8 +11,8 @@ import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Basic implementation of a state machine with pre, main, and post hooks.
- * TODO: all my homies hate type safety
+ * Basic implementation of a state machine with pre, main, and post hooks. 
+ * - all my homies hate type safety
  *
  * @param <E> Enum type representing the states of the state machine
  */
@@ -34,12 +34,16 @@ public class StateMachine<E extends Enum<E>> {
     private final Map<E, List<Consumer<Object>>> postHooks = new HashMap<>();
     private final Set<E> states = new HashSet<>();
 
+    public StateMachine(E currentState) {
+        this.currentState = currentState;
+    }
+
     /**
      * Adds a new state to the state machine and initializes hooks.
      *
      * @param state the state to add
      */
-    public void addState(E state) {
+    public void add(E state) {
         if (!states.contains(state)) {
             states.add(state);
             preHooks.put(state, new ArrayList<>());
@@ -55,23 +59,11 @@ public class StateMachine<E extends Enum<E>> {
      * @param state the new current state
      * @param args  structured argument object to pass to hooks when emitting
      */
-    public void setState(E state, Object args) {
-        checkStateExists(state);
+    public void set(E state, Object args) {
+        exists(state);
         currentState = state;
         if (emitOnSetState)
             emit(state, args);
-    }
-
-    /**
-     * Emits an event for the current state.
-     *
-     * @param args structured argument object for the event hooks
-     * @throws IllegalStateException if no current state is set
-     */
-    public void emitCurrent(Object args) {
-        if (currentState == null)
-            throw new IllegalStateException("No current state set");
-        emit(currentState, args);
     }
 
     /**
@@ -79,7 +71,7 @@ public class StateMachine<E extends Enum<E>> {
      *
      * @return the current state
      */
-    public E getCurrentState() {
+    public E get() {
         return currentState;
     }
 
@@ -100,7 +92,7 @@ public class StateMachine<E extends Enum<E>> {
      */
     private void emit(E state, Object args) {
         log.info("Emitting event for state: {} with args: {}", state, args);
-        checkStateExists(state);
+        exists(state);
         preHooks.get(state).forEach(h -> h.accept(args));
         mainHooks.get(state).forEach(h -> h.accept(args));
         postHooks.get(state).forEach(h -> h.accept(args));
@@ -112,7 +104,7 @@ public class StateMachine<E extends Enum<E>> {
      * @param state the state to check
      * @throws IllegalStateException if the state is not registered
      */
-    private void checkStateExists(E state) {
+    private void exists(E state) {
         if (!states.contains(state)) {
             log.error("State not registered: {}", state);
             throw new IllegalStateException("State not registered: " + state);
@@ -128,7 +120,7 @@ public class StateMachine<E extends Enum<E>> {
      */
     private List<Consumer<Object>> getHooks(Map<E, List<Consumer<Object>>> hooks, E state) {
         log.debug("Retrieving hooks for state: {}", state);
-        checkStateExists(state);
+        exists(state);
         return hooks.get(state);
     }
 

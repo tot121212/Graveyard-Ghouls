@@ -26,6 +26,4 @@ export class EndpointURIBuilder {
             .join("&");
         return path + (query ? "?" + query : "");
     }
-
-
 }

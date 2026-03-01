@@ -1,42 +1,158 @@
 package com.totsnuk.graveyardghouls.pojo;
 
-import java.util.HashSet;
-import java.util.Set;
+import com.totsnuk.graveyardghouls.dto.GameActionDto;
+import com.totsnuk.graveyardghouls.dto.JoinDto;
+import com.totsnuk.graveyardghouls.enums.GameActionEnum;
+import com.totsnuk.graveyardghouls.enums.result.JoinResult;
+import com.totsnuk.graveyardghouls.state.GameLifecycleState;
+import com.totsnuk.graveyardghouls.state.StateMachine;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Owns the Game and is responsible for:
+ * 
+ * - Routing player actions securely
+ * 
+ * - Basic validation of actions
+ * 
+ * - Performing basic join and leave actions that are not a part of the
+ * GameState
+ */
 @Getter
 @Slf4j
-public class GameSession extends Session {
-    /**
-     * Duration in which session is allowed to be active before deletion
-     */
+public class GameSession extends ManagedEntity {
+    /*** Duration in which session is allowed to be inactive before deletion */
     public static final int GAME_SESSION_INACTIVE_DURATION_IN_MIN = 2;
-    /**
-     * Set of players that are currently connected
-     */
-    public final Set<PlayerSession> connectedPlayers = new HashSet<>();
 
-    public GameSession(String gameId) {
-        super(gameId);
+    private final Game game = new Game();
+
+    private final ParticipantRegistry participantRegistry = new ParticipantRegistry();
+
+    public GameSession() {
+        super();
     }
 
-    public boolean playerJoin(PlayerSession playerSession) {
-        if (this.connectedPlayers.contains(playerSession)) {
-            log.info("Player tried to connect but was already connected");
+    /**
+     * Connect to the session, specifying which seat
+     * 
+     * @return Participant or null
+     */
+    public synchronized JoinDto connect() {
+        final StateMachine<GameLifecycleState> lifecycleStateMachine = game.getLifecycleStateMachine();
+        final SeatRegistry seatRegistry = game.getSeatRegistry();
+
+        switch (lifecycleStateMachine.get()) {
+
+            case GameLifecycleState.LOBBY, GameLifecycleState.READY -> {
+                final Participant participant = new Participant();
+
+                Seat seat = seatRegistry.occupy(participant);
+                if (seat == null)
+                    break;
+
+                participant.setSeat(seat);
+                participantRegistry.add(participant);
+                return new JoinDto(JoinResult.SUCCESS, participant.getId(), participant.getPrivateToken());
+            }
+
+            default -> {
+                break;
+            }
+
+        }
+        return null;
+    }
+
+    /**
+     * Allows users to reconnect to a paused game
+     * 
+     * @param id    Id of participant
+     * @param token Private token used for auth of user
+     */
+    public synchronized JoinDto reconnect(String participantId,
+            String privateToken) {
+        if (participantId == null
+                || privateToken == null)
+            return null;
+        Participant participant = participantRegistry.getByPrivate(participantId, privateToken);
+        if (participant == null)
+            return null;
+
+        if (game.getLifecycleStateMachine().get() != GameLifecycleState.PAUSED) {
+            return null;
+        }
+
+        // listeners will take care of reactions to mutating participant.connection
+        return new JoinDto(JoinResult.SUCCESS, participant.getId(), participant.getPrivateToken());
+    }
+
+    /**
+     * Disconnect a user from a session
+     * 
+     * @param GameConnection
+     * @return
+     */
+    public synchronized boolean disconnect(String id, String privateToken) {
+        // use id and token to auth that it is the right person
+        // get existing participant
+        Participant participant = participantRegistry.getByPrivate(id, privateToken);
+        if (participant == null) {
+            log.warn("Participant could not be found");
             return false;
         }
-        this.connectedPlayers.add(playerSession);
-        playerSession.setCurGame(this);
-        // TODO: add logic here probably
-        return true;
+
+        switch (game.getLifecycleStateMachine().get()) {
+            // Player who leaves spot can be filled by anyone
+            case GameLifecycleState.LOBBY -> {
+                // TODO:
+                // remove connection
+                // tell seatRegistry to unoccupy seat
+                // no need to tell game that player disconnect because player does not exist yet
+                // delete participant
+                participantRegistry.remove(participant);
+            }
+            case GameLifecycleState.PAUSED -> {
+                // fire the disconnect event
+            }
+            default -> {
+                break;
+            }
+        }
+        return false;
     }
 
-    public boolean playerLeave(PlayerSession playerSession) {
-        boolean result = this.connectedPlayers.remove(playerSession);
-        playerSession.setCurGame(null);
-        // TODO: add logic here probably
-        return result;
+    /**
+     * Constructs a GameActionDto and safely transfers to enqueueAction within the
+     * Game
+     */
+    public boolean executeGameAction(
+            String participantId,
+            String privateToken,
+            GameActionEnum actionEnum,
+            Record payload) {
+
+        if (participantId == null
+                || privateToken == null
+                || actionEnum == null
+                || payload == null) {
+            return false;
+        }
+
+        Participant participant = participantRegistry.getByPrivate(participantId, privateToken);
+        if (participant == null)
+            return false;
+
+        Player player = participant.getPlayer();
+        if (player == null)
+            return false;
+
+        // ensure connection and seat exist
+        if (participant.getSeat() == null)
+            return false;
+
+        // pass call along but with player instead of privateToken
+        return game.enqueue(new GameActionDto(actionEnum, player, payload));
     }
 }

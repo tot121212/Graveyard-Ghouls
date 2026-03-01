@@ -7,7 +7,7 @@ import com.totsnuk.graveyardghouls.pojo.ManagedEntity;
 /**
  * Represents a collection of active sessions
  */
-public interface SessionRegistry<T extends ManagedEntity> {
+public interface PublicRegistry<T extends ManagedEntity> {
 
     public T add(T session);
 

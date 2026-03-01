@@ -1,36 +1,50 @@
 package com.totsnuk.graveyardghouls.websocket.listeners;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.context.ApplicationListener;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 
+import com.totsnuk.graveyardghouls.component.GameSessionRegistry;
+import com.totsnuk.graveyardghouls.pojo.GameSession;
+import com.totsnuk.graveyardghouls.pojo.Participant;
+
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Handles storing gameSession and participant for websocket connection
+ */
 @Slf4j
 @Component
 public class WebsocketConnectListener implements ApplicationListener<SessionConnectEvent> {
+    private GameSessionRegistry gameSessionRegistry;
 
     @Override
     public void onApplicationEvent(SessionConnectEvent event) {
         StompHeaderAccessor sha = StompHeaderAccessor.wrap(event.getMessage());
-
-        // Get headers sent in the CONNECT frame
-        String playerPublicId = sha.getFirstNativeHeader("playerPublicId");
-        String playerPrivateId = sha.getFirstNativeHeader("playerPrivateId");
-
-        log.info("Public ID: " + playerPublicId);
-        log.info("Private ID: " + playerPrivateId);
-
-        // Set STOMP attributes
-        if (sha.getSessionAttributes() == null) {
-            sha.setSessionAttributes(new HashMap<>());
-        }
-        sha.getSessionAttributes().put("playerPublicId", playerPublicId);
-        sha.getSessionAttributes().put("playerPrivateId", playerPrivateId);
-
         log.info("Spring STOMP session connected");
+        Map<String, Object> sAttrs = sha.getSessionAttributes();
+
+        String gid = (String) sAttrs.get("gameSessionId");
+        String publicId = (String) sAttrs.get("publicId");
+        String privateToken = (String) sAttrs.get("privateToken");
+        if (gid == null || publicId == null || privateToken == null)
+            return;
+
+        GameSession gameSession = gameSessionRegistry.get(gid);
+        if (gameSession == null)
+            return;
+
+        Participant participant = gameSession.getParticipantRegistry().getByPrivate(publicId, privateToken);
+        if (participant == null)
+            return;
+
+        // Store participant and gameSession on the websocket session for easy routing
+        // NOTE: if we decide to containerize the game server itself, we can do that
+        // without issue.
+        sAttrs.put("participant", participant);
+        sAttrs.put("gameSession", gameSession);
     }
 }
