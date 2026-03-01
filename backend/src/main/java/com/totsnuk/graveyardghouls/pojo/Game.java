@@ -131,7 +131,7 @@ public class Game {
         return actionQueue.poll();
     }
 
-    public void onPlayerLeave() {
+    public void onPlayerLeave(Player player) {
         // TODO:
     }
 }
