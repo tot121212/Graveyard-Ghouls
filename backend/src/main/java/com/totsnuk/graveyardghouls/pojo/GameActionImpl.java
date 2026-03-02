@@ -1,5 +1,9 @@
 package com.totsnuk.graveyardghouls.pojo;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.totsnuk.graveyardghouls.dto.GameActionDto;
 import com.totsnuk.graveyardghouls.enums.GameActionEnum;
 
 import lombok.AllArgsConstructor;
@@ -14,10 +18,31 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class GameActionImpl implements GameAction {
+    public static final Map<GameActionEnum, GameActionDescriptor> elementToDescriptor = new ConcurrentHashMap<>();
+
+    public static GameAction from(GameActionDto dto) {
+        if (dto == null)
+            return null;
+
+        Enum<?> e = dto.getElement();
+        if (e == null || !(e instanceof GameActionEnum))
+            return null;
+        GameActionEnum actionEnum = (GameActionEnum) e;
+        Player player = dto.getPlayer();
+        Record payload = dto.getPayload();
+
+        if (player == null || payload == null)
+            return null;
+
+        // find descriptor from map
+        GameActionDescriptor descriptor = elementToDescriptor.get(actionEnum);
+        return new GameActionImpl(actionEnum, player, payload, descriptor);
+    }
+
     /**
      * The action they are performing
      */
-    private final Enum<GameActionEnum> element;
+    private final GameActionEnum element;
     /**
      * The player executing the action
      */

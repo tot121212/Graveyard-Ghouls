@@ -1,6 +1,8 @@
 package com.totsnuk.graveyardghouls.pojo;
 
-public interface GameAction extends Action {
+import com.totsnuk.graveyardghouls.enums.GameActionEnum;
+
+public interface GameAction extends Action<GameActionEnum> {
     Player getPlayer();
 
     GameActionDescriptor getDescriptor();

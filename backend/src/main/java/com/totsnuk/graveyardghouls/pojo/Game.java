@@ -2,15 +2,11 @@ package com.totsnuk.graveyardghouls.pojo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
 import com.totsnuk.graveyardghouls.enums.GameActionEnum;
-import com.totsnuk.graveyardghouls.state.GameLifecycleState;
-import com.totsnuk.graveyardghouls.state.StateMachine;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,7 +19,7 @@ public class Game {
     /***
      * - Single action queue processed on one game thread; each player may have only
      * one pending
-     * action, and interrupts are only accepted during explicit windows with the
+     * action, and Realtimes are only accepted during explicit windows with the
      * game logically
      * paused while resolving them. - Structural validation occurs before enqueue,
      * full state
@@ -35,26 +31,23 @@ public class Game {
      * is the same
      */
     private final int MAX_ACTION_QUEUE_SIZE = 2;
-    private final Queue<GameAction> actionQueue = new ConcurrentLinkedQueue<>();
-    private final int maxInterruptsPerPlayer = 1;
+
+    private final GameActionSequencer gameActionSequencer = new GameActionSequencer();
+    private final Queue<GameUpdate> updateQueue = new ConcurrentLinkedQueue<>();
 
     private final List<Player> players = new ArrayList<>();
-    private Player currentPlayer;
-
-    /*** State machine that represents the lobby/lifecycle state */
-    private final StateMachine<GameLifecycleState> lifecycleStateMachine = new StateMachine<>(GameLifecycleState.LOBBY);
 
     private final SeatRegistry seatRegistry = new SeatRegistry();
+    private final AnimationHandler animationHandler = new AnimationHandler();
 
-    private final Map<GameActionEnum, GameActionDescriptor> elementToDescriptor = new ConcurrentHashMap<>();
+    private Player currentPlayer;
 
     public synchronized void init() {
     }
 
     public synchronized void reset() {
-        this.actionQueue.clear();
+        this.gameActionSequencer.clear();
         this.players.clear();
-        this.lifecycleStateMachine.set(null, null);
         // shouldn't do this because we want to return to lobby after game ends
         // this.seatRegistry.reset();
     }
@@ -64,74 +57,100 @@ public class Game {
     }
 
     /**
-     * Validates action via metadata,current state
-     * creates from dto
-     * 
-     * @param action
-     * @return
+     * Conditions:
+     * - isnt null
+     * - is player within players list
      */
-    public synchronized GameAction validateAndCreate(GameActionDto dto) {
-        if (dto == null)
-            return null;
+    private boolean isValidAction(GameAction action) {
+        return action != null
+                && players.contains(action.getPlayer());
+    }
 
-        Enum<?> e = dto.getElement();
-        if (e == null || !(e instanceof GameActionEnum))
-            return null;
-        GameActionEnum actionEnum = (GameActionEnum) e;
-        Player player = dto.getPlayer();
-        Record payload = dto.getPayload();
+    /**
+     * Conditions:
+     * - realtime stack isnt active
+     * - player isnt null
+     * - is players turn
+     * - player doesnt have action enqueued already
+     */
+    private boolean isValidStaticAction(GameAction action) {
+        Player player = action.getPlayer();
 
-        if (player == null || payload == null)
-            return null;
+        return !gameActionSequencer.isRealtime()
+                && player != null
+                && isPlayerTurn(player)
+                && gameActionSequencer.hasStatic();
+    }
 
-        if (!players.contains(player))
-            return null;
+    /**
+     * Conditions:
+     * - descriptor isnt null
+     * - descriptor is realtime
+     */
+    private boolean isValidRealtimeAction(GameAction action) {
+        GameActionDescriptor descriptor = action.getDescriptor();
 
-        // find descriptor from map
-        GameActionDescriptor descriptor = elementToDescriptor.get(actionEnum);
-        return new GameActionImpl(actionEnum, player, payload, descriptor);
+        return descriptor != null
+                && descriptor.isRealtime();
     }
 
     /**
      * - Adds a game action to the queue
      * - This should perform all necessary validation before adding to the queue
+     * - Also interacts with the RealtimeStack
+     * ---
+     * This style of enqueue ensures that currentPlayer can play actions
+     * sequentially without waiting for animations to finish
      */
     public synchronized boolean enqueue(GameActionDto dto) {
         if (dto == null)
             return false;
 
-        GameAction action = validateAndCreate(dto);
+        GameAction action = GameActionImpl.from(dto);
         if (action == null)
             return false;
+        if (!isValidAction(action))
+            return false;
 
-        Enum<?> actionEnum = action.getElement();
+        GameActionEnum actionEnum = action.getElement();
         Player player = action.getPlayer();
         Record payload = action.getPayload();
 
         if (player == null || payload == null || actionEnum == null)
             return false;
 
-        if (isPlayerTurn(player)) {
+        if (isValidStaticAction(action)) {
             // enqueue action normally
-            actionQueue.add(action);
+            if (!gameActionSequencer.addStatic(action))
+                return false;
+            // TODO: update stuff
             return true;
-        } else if (action.getDescriptor().isRealtime()) {
-            // enqueue as an interrupt (removing all other actions)
-            actionQueue.clear();
-            actionQueue.add(action);
+        } else if (isValidRealtimeAction(action)) {
+            gameActionSequencer.addRealtime(action);
             return true;
         }
         return false;
     }
 
-    /**
-     * Retrieves and removes the next normal game action, or null if empty.
-     */
-    public GameAction pollAction() {
-        return actionQueue.poll();
-    }
-
     public void onPlayerLeave(Player player) {
         // TODO:
     }
+
+    /**
+     * Update the game state using input update
+     * ---
+     * run update based on specific functions within the game context
+     * - gameStart
+     * - playerAction
+     * - animationFinish
+     * - timeout from animation finish
+     */
+    public synchronized void update() {
+        // performs a blocking game update using the next element in the updateQueue
+        GameUpdate update = updateQueue.poll();
+        // TODO:
+        // perform the update
+        // update.perform();
+    }
+
 }

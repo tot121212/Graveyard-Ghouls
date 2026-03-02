@@ -5,7 +5,7 @@ import com.totsnuk.graveyardghouls.dto.JoinDto;
 import com.totsnuk.graveyardghouls.enums.GameActionEnum;
 import com.totsnuk.graveyardghouls.enums.result.JoinResult;
 import com.totsnuk.graveyardghouls.state.GameLifecycleState;
-import com.totsnuk.graveyardghouls.state.StateMachine;
+import com.totsnuk.graveyardghouls.state.EventDispatcher;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +40,10 @@ public class GameSession extends ManagedEntity {
      * @return Participant or null
      */
     public synchronized JoinDto connect() {
-        final StateMachine<GameLifecycleState> lifecycleStateMachine = game.getLifecycleStateMachine();
+        final EventDispatcher<GameLifecycleState> lifecycleEventDispatcher = game.getLifecycleEventDispatcher();
         final SeatRegistry seatRegistry = game.getSeatRegistry();
 
-        switch (lifecycleStateMachine.get()) {
+        switch (lifecycleEventDispatcher.get()) {
 
             case GameLifecycleState.LOBBY, GameLifecycleState.READY -> {
                 final Participant participant = new Participant();
@@ -80,7 +80,7 @@ public class GameSession extends ManagedEntity {
         if (participant == null)
             return null;
 
-        if (game.getLifecycleStateMachine().get() != GameLifecycleState.PAUSED) {
+        if (game.getLifecycleEventDispatcher().get() != GameLifecycleState.PAUSED) {
             return null;
         }
 
@@ -103,7 +103,7 @@ public class GameSession extends ManagedEntity {
             return false;
         }
 
-        switch (game.getLifecycleStateMachine().get()) {
+        switch (game.getLifecycleEventDispatcher().get()) {
             // Player who leaves spot can be filled by anyone
             case GameLifecycleState.LOBBY -> {
                 // TODO:
