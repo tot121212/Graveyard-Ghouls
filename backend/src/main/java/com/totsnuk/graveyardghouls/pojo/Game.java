@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
 import com.totsnuk.graveyardghouls.enums.GameActionEnum;
+import com.totsnuk.graveyardghouls.state.GameActionSequencerState;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +44,7 @@ public class Game {
     private Player currentPlayer;
 
     public synchronized void init() {
+        gameActionSequencer.eventDispatcher.onEvent(GameActionSequencerState.WAITING, this::onInterruptStart);
     }
 
     public synchronized void reset() {
@@ -132,7 +134,7 @@ public class Game {
         return false;
     }
 
-    public void onPlayerLeave(Player player) {
+    public void onInterruptStart(Record args) {
         // TODO:
     }
 

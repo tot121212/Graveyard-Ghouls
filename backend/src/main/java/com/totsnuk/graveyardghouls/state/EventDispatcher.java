@@ -19,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EventDispatcher<E> {
 
-    private final Map<E, List<Consumer<Object>>> preHooks = new HashMap<>();
-    private final Map<E, List<Consumer<Object>>> mainHooks = new HashMap<>();
-    private final Map<E, List<Consumer<Object>>> postHooks = new HashMap<>();
+    private final Map<E, List<Consumer<Record>>> preHooks = new HashMap<>();
+    private final Map<E, List<Consumer<Record>>> mainHooks = new HashMap<>();
+    private final Map<E, List<Consumer<Record>>> postHooks = new HashMap<>();
     private final Set<E> events = new HashSet<>();
 
     /**
@@ -45,7 +45,7 @@ public class EventDispatcher<E> {
      * @param event the new current event
      * @param args  structured argument object to pass to hooks when emitting
      */
-    public void emit(E event, Object args) {
+    public void emit(E event, Record args) {
         exists(event);
         emitInternal(event, args);
     }
@@ -56,7 +56,7 @@ public class EventDispatcher<E> {
      * @param event the event for which to emit hooks
      * @param args  structured argument object for the hooks
      */
-    private void emitInternal(E event, Object args) {
+    private void emitInternal(E event, Record args) {
         log.info("Emitting event for event: {} with args: {}", event, args);
         exists(event);
         preHooks.get(event).forEach(h -> h.accept(args));
@@ -84,7 +84,7 @@ public class EventDispatcher<E> {
      * @param event the event whose hooks to retrieve
      * @return the list of hooks for the event
      */
-    private List<Consumer<Object>> getHooks(Map<E, List<Consumer<Object>>> hooks, E event) {
+    private List<Consumer<Record>> getHooks(Map<E, List<Consumer<Record>>> hooks, E event) {
         log.debug("Retrieving hooks for event: {}", event);
         exists(event);
         return hooks.get(event);
@@ -96,7 +96,7 @@ public class EventDispatcher<E> {
      * @param event the event to attach the pre-hook
      * @param hook  the hook function to execute before the main event
      */
-    public void onPre(E event, Consumer<Object> hook) {
+    public void onPre(E event, Consumer<Record> hook) {
         log.info("Registering pre hook for event: {}", event);
         getHooks(preHooks, event).add(hook);
     }
@@ -107,7 +107,7 @@ public class EventDispatcher<E> {
      * @param event the event to attach the main hook
      * @param hook  the hook function to execute during the main event
      */
-    public void onEvent(E event, Consumer<Object> hook) {
+    public void onEvent(E event, Consumer<Record> hook) {
         log.info("Registering event hook for event: {}", event);
         getHooks(mainHooks, event).add(hook);
     }
@@ -118,7 +118,7 @@ public class EventDispatcher<E> {
      * @param event the event to attach the post-hook
      * @param hook  the hook function to execute after the main event
      */
-    public void onPost(E event, Consumer<Object> hook) {
+    public void onPost(E event, Consumer<Record> hook) {
         log.info("Registering post hook for event: {}", event);
         getHooks(postHooks, event).add(hook);
     }

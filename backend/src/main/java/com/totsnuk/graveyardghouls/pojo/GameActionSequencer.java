@@ -106,13 +106,4 @@ public class GameActionSequencer {
         return true;
     }
 
-    /**
-     * To be overwritten with what you want to do upon resolve
-     * 
-     * @return
-     */
-    public boolean resolveStaticQueue() {
-        return false;
-    }
-
 }
