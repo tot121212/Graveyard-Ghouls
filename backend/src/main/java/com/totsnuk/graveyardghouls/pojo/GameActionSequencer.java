@@ -15,7 +15,7 @@ import com.totsnuk.graveyardghouls.state.GameActionSequencerState;
  * Handles the sequence of actions
  */
 public class GameActionSequencer {
-    private GameActionSequencerState state = GameActionSequencerState.IDLE;
+    private static final int REALTIME_TIMER_TIME = 3;
     /**
      * When the realtime stack has elements, the gameLoop will wait for 3 seconds
      * for the clients to send any addtional Realtimes
@@ -29,6 +29,8 @@ public class GameActionSequencer {
     public final EventDispatcher<GameActionSequencerState> eventDispatcher = new EventDispatcher<>();
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+    private GameActionSequencerState state = GameActionSequencerState.IDLE;
 
     public boolean clear() {
         if (state != GameActionSequencerState.IDLE)
@@ -62,8 +64,6 @@ public class GameActionSequencer {
     public boolean isRealtime() {
         return !realtimeStack.isEmpty();
     }
-
-    private static final int REALTIME_TIMER_TIME = 3;
 
     private void triggerRealtimeTimer() {
         // we create a seperate thread that is a timer for 3 seconds,
