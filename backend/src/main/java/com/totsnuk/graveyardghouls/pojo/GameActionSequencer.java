@@ -12,7 +12,14 @@ import com.totsnuk.graveyardghouls.state.EventDispatcher;
 import com.totsnuk.graveyardghouls.state.GameActionSequencerState;
 
 /**
- * Handles the sequence of actions
+ * Manages the sequencing and execution of game actions with support for both
+ * realtime and static action queues.
+ * This class maintains a state machine that coordinates the timing and dispatch
+ * of actions, ensuring proper
+ * synchronization between client requests and server-side game logic. It
+ * handles realtime actions with a
+ * configurable timeout mechanism and provides event emission capabilities for
+ * state transitions.
  */
 public class GameActionSequencer {
     private static final int REALTIME_TIMER_TIME = 3;
