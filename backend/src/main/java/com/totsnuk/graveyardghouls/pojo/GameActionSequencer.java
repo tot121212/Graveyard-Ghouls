@@ -88,7 +88,8 @@ public class GameActionSequencer {
 
     /**
      * Adds realtime actions to the stack <br>
-     * Triggers realtime if not already triggered
+     * Triggers realtime if not already triggered <br>
+     * Ensures that actions happen in the proper state
      */
     public synchronized boolean addRealtime(GameAction action) {
         switch (state) {
