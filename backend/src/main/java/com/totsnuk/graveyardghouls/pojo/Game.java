@@ -43,11 +43,16 @@ public class Game {
 
     private Player currentPlayer;
 
-    public synchronized void init() {
+    public void init() {
+        link();
+        reset();
+    }
+
+    public void link() {
         gameActionSequencer.eventDispatcher.onEvent(GameActionSequencerState.WAITING, this::onInterruptStart);
     }
 
-    public synchronized void reset() {
+    public void reset() {
         this.gameActionSequencer.clear();
         this.players.clear();
         // shouldn't do this because we want to return to lobby after game ends
@@ -135,7 +140,7 @@ public class Game {
     }
 
     public void onInterruptStart(Record args) {
-        // TODO:
+        // TODO: implement
     }
 
     /**
@@ -147,7 +152,7 @@ public class Game {
      * - animationFinish
      * - timeout from animation finish
      */
-    public synchronized void update() {
+    public void update() {
         // performs a blocking game update using the next element in the updateQueue
         GameUpdate update = updateQueue.poll();
         // TODO:
