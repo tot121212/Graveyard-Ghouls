@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
 import com.totsnuk.graveyardghouls.enums.GameActionEnum;
-import com.totsnuk.graveyardghouls.state.GameActionSequencerState;
+import com.totsnuk.graveyardghouls.state.InterruptState;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -49,13 +49,13 @@ public class Game {
     }
 
     public void link() {
-        gameActionSequencer.eventDispatcher.onEvent(GameActionSequencerState.WAITING, this::onInterruptStart);
+        gameActionSequencer.eventDispatcher.onEvent(InterruptState.WAITING, this::onInterruptStart);
     }
 
     public void reset() {
         this.gameActionSequencer.clear();
         this.players.clear();
-        // shouldn't do this because we want to return to lobby after game ends
+        // shouldn't do this -V- because we want to return to lobby after game ends
         // this.seatRegistry.reset();
     }
 
@@ -139,8 +139,16 @@ public class Game {
         return false;
     }
 
+    /**
+     * Triggered when the GameActionSequencer.state is set to WAITING
+     * 
+     * @param args
+     */
     public void onInterruptStart(Record args) {
         // TODO: implement
+        // what to do when interrupt starts
+        // tell game to pause
+        // idk
     }
 
     /**

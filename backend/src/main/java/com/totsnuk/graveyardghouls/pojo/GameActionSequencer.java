@@ -9,7 +9,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.totsnuk.graveyardghouls.state.EventDispatcher;
-import com.totsnuk.graveyardghouls.state.GameActionSequencerState;
+import com.totsnuk.graveyardghouls.state.InterruptState;
 
 /**
  * Manages the sequencing and execution of game actions with support for both
@@ -33,14 +33,14 @@ public class GameActionSequencer {
      */
     private final Queue<GameAction> staticQueue = new LinkedBlockingQueue<>();
 
-    public final EventDispatcher<GameActionSequencerState> eventDispatcher = new EventDispatcher<>();
+    public final EventDispatcher<InterruptState> eventDispatcher = new EventDispatcher<>();
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private GameActionSequencerState state = GameActionSequencerState.IDLE;
+    private InterruptState state = InterruptState.IDLE;
 
     public boolean clear() {
-        if (state != GameActionSequencerState.IDLE)
+        if (state != InterruptState.IDLE)
             return false;
         realtimeStack.clear();
         staticQueue.clear();
@@ -55,7 +55,7 @@ public class GameActionSequencer {
     }
 
     public boolean addStatic(GameAction action) {
-        if (state != GameActionSequencerState.IDLE)
+        if (state != InterruptState.IDLE)
             return false;
         // if realtimeStack has an action, static action queue is locked
         if (isRealtime())
@@ -76,14 +76,14 @@ public class GameActionSequencer {
         // we create a seperate thread that is a timer for 3 seconds,
         // then trigger callback to change a boolean saying isResolveable
 
-        Runnable callback = () -> {
-            state = GameActionSequencerState.RESOLVING;
-            System.out.println("Timeout reached! Executing callback.");
-            eventDispatcher.emit(state, null);
-        };
-
         // Schedule for 3 seconds later
-        scheduler.schedule(callback, REALTIME_TIMER_TIME, TimeUnit.SECONDS);
+        scheduler.schedule(() -> {
+            System.out.println("Timeout reached! Resolving stack.");
+
+            state = InterruptState.RESOLVING;
+            eventDispatcher.emit(state, null);
+
+        }, REALTIME_TIMER_TIME, TimeUnit.SECONDS);
     }
 
     /**
@@ -93,16 +93,18 @@ public class GameActionSequencer {
      */
     public synchronized boolean addRealtime(GameAction action) {
         switch (state) {
-            case GameActionSequencerState.IDLE -> {
-                state = GameActionSequencerState.WAITING;
+            case InterruptState.IDLE -> {
+                state = InterruptState.WAITING;
+                eventDispatcher.emit(state, null);
+
                 staticQueue.clear();
                 realtimeStack.add(action);
                 triggerRealtimeTimer();
             }
-            case GameActionSequencerState.WAITING -> {
+            case InterruptState.WAITING -> {
                 realtimeStack.add(action);
             }
-            case GameActionSequencerState.RESOLVING -> {
+            case InterruptState.RESOLVING -> {
                 return false;
             }
             default -> {
