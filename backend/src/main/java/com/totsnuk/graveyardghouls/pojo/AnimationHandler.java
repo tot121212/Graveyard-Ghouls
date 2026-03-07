@@ -25,28 +25,33 @@ public class AnimationHandler {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Queue<Animation> queue = new ConcurrentLinkedQueue<>();
     private Animation current;
-    private boolean animating = false;
 
-    public void add(Animation anim) {
-        if (animating == true) {
-            queue.add(anim);
-        } else {
-            animating = true;
-            animate(anim);
+    /**
+     * Adds animation to queue and triggers animate if not already triggered
+     */
+    public boolean add(Animation anim) {
+        if (anim == null)
+            return false;
+        queue.add(anim);
+        if (current == null)
+            animate();
+        return true;
+    }
+
+    /**
+     * @return If an animation was started
+     */
+    private void animate() {
+        Animation next = queue.poll();
+        if (next == null) {
+            current = null;
         }
-    }
-
-    public void onFinishAnimation() {
-        Animation head = queue.poll();
-        animate(head);
-        if (queue.isEmpty())
-            animating = false;
-    }
-
-    public void animate(Animation anim) {
-        long ms = anim.getMs();
+        current = next;
+        long ms = current.getMs();
         long now = Instant.now().toEpochMilli();
-        scheduler.schedule(this::onFinishAnimation, ms, TimeUnit.MILLISECONDS);
+        scheduler.schedule(this::animate, ms, TimeUnit.MILLISECONDS);
+
         // TODO: Emit animation event to event bus
+        // with `now` for proper timing on client
     }
 }
