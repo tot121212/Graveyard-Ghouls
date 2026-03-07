@@ -1,6 +1,6 @@
 package com.totsnuk.graveyardghouls.dto;
 
-import com.totsnuk.graveyardghouls.enums.GameActionEnum;
+import com.totsnuk.graveyardghouls.enums.GameActionEvent;
 import com.totsnuk.graveyardghouls.pojo.Player;
 
 import lombok.AllArgsConstructor;
@@ -12,7 +12,7 @@ public class GameActionDto {
     /**
      * The action they are performing
      */
-    private final GameActionEnum element;
+    private final GameActionEvent element;
     /**
      * The player executing the action
      */

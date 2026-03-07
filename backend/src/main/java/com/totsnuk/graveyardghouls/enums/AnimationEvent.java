@@ -1,5 +1,5 @@
 package com.totsnuk.graveyardghouls.enums;
 
-public enum AnimationEnum {
+public enum AnimationEvent {
     PAUSE_GAME;
 }

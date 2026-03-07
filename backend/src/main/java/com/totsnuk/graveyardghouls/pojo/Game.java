@@ -6,8 +6,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
-import com.totsnuk.graveyardghouls.enums.GameActionEnum;
-import com.totsnuk.graveyardghouls.state.InterruptState;
+import com.totsnuk.graveyardghouls.enums.GameActionEvent;
+import com.totsnuk.graveyardghouls.enums.InterruptState;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -119,7 +119,7 @@ public class Game {
         if (!isValidAction(action))
             return false;
 
-        GameActionEnum actionEnum = action.getElement();
+        GameActionEvent actionEnum = action.getElement();
         Player player = action.getPlayer();
         Record payload = action.getPayload();
 

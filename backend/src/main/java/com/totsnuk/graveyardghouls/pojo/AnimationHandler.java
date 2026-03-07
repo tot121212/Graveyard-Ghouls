@@ -9,6 +9,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import com.totsnuk.graveyardghouls.event.EventBus;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +23,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class AnimationHandler {
+    private final EventBus<?> eventBus;
     private final SimpMessagingTemplate msgTemplate;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Queue<Animation> queue = new ConcurrentLinkedQueue<>();
@@ -39,12 +42,16 @@ public class AnimationHandler {
     }
 
     /**
+     * Animations will loop until none are left
+     * - will be triggered again by add
+     * 
      * @return If an animation was started
      */
     private void animate() {
         Animation next = queue.poll();
         if (next == null) {
             current = null;
+            return;
         }
         current = next;
         long ms = current.getMs();
@@ -53,5 +60,6 @@ public class AnimationHandler {
 
         // TODO: Emit animation event to event bus
         // with `now` for proper timing on client
+
     }
 }

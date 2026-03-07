@@ -1,6 +1,6 @@
 package com.totsnuk.graveyardghouls.pojo;
 
-import com.totsnuk.graveyardghouls.enums.AnimationEnum;
+import com.totsnuk.graveyardghouls.enums.AnimationEvent;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +8,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class Animation {
-    private final AnimationEnum element;
+    private final AnimationEvent element;
     private final long ms;
 }

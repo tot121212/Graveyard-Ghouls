@@ -8,8 +8,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.totsnuk.graveyardghouls.enums.InterruptState;
 import com.totsnuk.graveyardghouls.event.EventDispatcher;
-import com.totsnuk.graveyardghouls.state.InterruptState;
 
 /**
  * Manages the sequencing and execution of game actions with support for both

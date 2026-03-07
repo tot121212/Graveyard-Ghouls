@@ -1,4 +1,4 @@
-package com.totsnuk.graveyardghouls.state;
+package com.totsnuk.graveyardghouls.enums;
 
 public enum GameLifecycleState {
     /**
