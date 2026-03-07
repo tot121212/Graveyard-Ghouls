@@ -4,8 +4,8 @@ import com.totsnuk.graveyardghouls.dto.GameActionDto;
 import com.totsnuk.graveyardghouls.dto.JoinDto;
 import com.totsnuk.graveyardghouls.enums.GameActionEnum;
 import com.totsnuk.graveyardghouls.enums.result.JoinResult;
+import com.totsnuk.graveyardghouls.event.EventDispatcher;
 import com.totsnuk.graveyardghouls.state.GameLifecycleState;
-import com.totsnuk.graveyardghouls.state.EventDispatcher;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

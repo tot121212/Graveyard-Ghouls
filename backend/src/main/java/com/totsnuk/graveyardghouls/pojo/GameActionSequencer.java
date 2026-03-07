@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.totsnuk.graveyardghouls.state.EventDispatcher;
+import com.totsnuk.graveyardghouls.event.EventDispatcher;
 import com.totsnuk.graveyardghouls.state.InterruptState;
 
 /**

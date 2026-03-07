@@ -1,4 +1,4 @@
-package com.totsnuk.graveyardghouls.state;
+package com.totsnuk.graveyardghouls.event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
