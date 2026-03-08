@@ -6,8 +6,10 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
-import com.totsnuk.graveyardghouls.enums.GameActionEvent;
-import com.totsnuk.graveyardghouls.enums.InterruptState;
+import com.totsnuk.graveyardghouls.events.Event;
+import com.totsnuk.graveyardghouls.events.EventDispatcher;
+import com.totsnuk.graveyardghouls.events.GameActionEvent;
+import com.totsnuk.graveyardghouls.events.InterruptState;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -33,13 +35,17 @@ public class Game {
      */
     private final int MAX_ACTION_QUEUE_SIZE = 2;
 
-    private final GameActionSequencer gameActionSequencer = new GameActionSequencer();
+    private final EventDispatcher<Event> eventBus = new EventDispatcher<>();
+
+    private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(eventBus);
+    private final GameActionSequencer gameActionSequencer = new GameActionSequencer(eventBus);
+    private final AnimationHandler animationHandler = new AnimationHandler(eventBus);
+
+    private final SeatRegistry seatRegistry = new SeatRegistry();
+
     private final Queue<GameUpdate> updateQueue = new ConcurrentLinkedQueue<>();
 
     private final List<Player> players = new ArrayList<>();
-
-    private final SeatRegistry seatRegistry = new SeatRegistry();
-    private final AnimationHandler animationHandler = new AnimationHandler();
 
     private Player currentPlayer;
 
@@ -49,7 +55,7 @@ public class Game {
     }
 
     public void link() {
-        gameActionSequencer.eventDispatcher.onEvent(InterruptState.WAITING, this::onInterruptStart);
+        eventBus.onEvent(InterruptState.WAITING, this::onInterruptStart);
     }
 
     public void reset() {

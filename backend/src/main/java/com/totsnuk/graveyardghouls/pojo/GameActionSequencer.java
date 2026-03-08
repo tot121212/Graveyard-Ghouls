@@ -8,8 +8,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.totsnuk.graveyardghouls.enums.InterruptState;
-import com.totsnuk.graveyardghouls.event.EventDispatcher;
+import com.totsnuk.graveyardghouls.events.Event;
+import com.totsnuk.graveyardghouls.events.EventDispatcher;
+import com.totsnuk.graveyardghouls.events.InterruptState;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * Manages the sequencing and execution of game actions with support for both
@@ -21,8 +24,10 @@ import com.totsnuk.graveyardghouls.event.EventDispatcher;
  * configurable timeout mechanism and provides event emission capabilities for
  * state transitions.
  */
+@RequiredArgsConstructor
 public class GameActionSequencer {
     private static final int REALTIME_TIMER_TIME = 3;
+    private final EventDispatcher<Event> eventBus;
     /**
      * When the realtime stack has elements, the gameLoop will wait for 3 seconds
      * for the clients to send any addtional Realtimes
@@ -32,9 +37,6 @@ public class GameActionSequencer {
      * For now it will be limited to one element for ease of production
      */
     private final Queue<GameAction> staticQueue = new LinkedBlockingQueue<>();
-
-    public final EventDispatcher<InterruptState> eventDispatcher = new EventDispatcher<>();
-
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private InterruptState state = InterruptState.IDLE;
@@ -81,7 +83,7 @@ public class GameActionSequencer {
             System.out.println("Timeout reached! Resolving stack.");
 
             state = InterruptState.RESOLVING;
-            eventDispatcher.emit(state, null);
+            eventBus.emit(state, null);
 
         }, REALTIME_TIMER_TIME, TimeUnit.SECONDS);
     }
@@ -95,7 +97,7 @@ public class GameActionSequencer {
         switch (state) {
             case InterruptState.IDLE -> {
                 state = InterruptState.WAITING;
-                eventDispatcher.emit(state, null);
+                eventBus.emit(state, null);
 
                 staticQueue.clear();
                 realtimeStack.add(action);

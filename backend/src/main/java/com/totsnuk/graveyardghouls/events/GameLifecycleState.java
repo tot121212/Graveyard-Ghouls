@@ -1,6 +1,6 @@
-package com.totsnuk.graveyardghouls.enums;
+package com.totsnuk.graveyardghouls.events;
 
-public enum GameLifecycleState {
+public enum GameLifecycleState implements Event {
     /**
      * - Seats are open for joining
      * - Players join, change display names

@@ -2,10 +2,10 @@ package com.totsnuk.graveyardghouls.pojo;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
 import com.totsnuk.graveyardghouls.dto.JoinDto;
-import com.totsnuk.graveyardghouls.enums.GameActionEvent;
-import com.totsnuk.graveyardghouls.enums.GameLifecycleState;
 import com.totsnuk.graveyardghouls.enums.result.JoinResult;
-import com.totsnuk.graveyardghouls.event.EventDispatcher;
+import com.totsnuk.graveyardghouls.events.EventDispatcher;
+import com.totsnuk.graveyardghouls.events.GameActionEvent;
+import com.totsnuk.graveyardghouls.events.GameLifecycleState;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +40,7 @@ public class GameSession extends ManagedEntity {
      * @return Participant or null
      */
     public synchronized JoinDto connect() {
-        final EventDispatcher<GameLifecycleState> lifecycleEventDispatcher = game.getLifecycleEventDispatcher();
+        final EventDispatcher<GameLifecycleState> lifecycleEventDispatcher = game.getGameLifecycleEventDispatcher();
         final SeatRegistry seatRegistry = game.getSeatRegistry();
 
         switch (lifecycleEventDispatcher.get()) {
@@ -80,7 +80,7 @@ public class GameSession extends ManagedEntity {
         if (participant == null)
             return null;
 
-        if (game.getLifecycleEventDispatcher().get() != GameLifecycleState.PAUSED) {
+        if (game.getGameLifecycleEventDispatcher().get() != GameLifecycleState.PAUSED) {
             return null;
         }
 
@@ -103,7 +103,7 @@ public class GameSession extends ManagedEntity {
             return false;
         }
 
-        switch (game.getLifecycleEventDispatcher().get()) {
+        switch (game.getGameLifecycleHandler().getState()) {
             // Player who leaves spot can be filled by anyone
             case GameLifecycleState.LOBBY -> {
                 // TODO:

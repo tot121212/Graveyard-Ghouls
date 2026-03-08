@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
-import com.totsnuk.graveyardghouls.enums.GameActionEvent;
+import com.totsnuk.graveyardghouls.events.GameActionEvent;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

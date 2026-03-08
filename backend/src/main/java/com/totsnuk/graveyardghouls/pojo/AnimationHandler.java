@@ -7,12 +7,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import com.totsnuk.graveyardghouls.events.Event;
+import com.totsnuk.graveyardghouls.events.EventDispatcher;
 
-import com.totsnuk.graveyardghouls.event.EventBus;
-
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -21,10 +20,10 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AnimationHandler {
-    private final EventBus<?> eventBus;
-    private final SimpMessagingTemplate msgTemplate;
+    private final EventDispatcher<Event> eventBus;
+    // private final SimpMessagingTemplate msgTemplate;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Queue<Animation> queue = new ConcurrentLinkedQueue<>();
     private Animation current;
@@ -57,9 +56,6 @@ public class AnimationHandler {
         long ms = current.getMs();
         long now = Instant.now().toEpochMilli();
         scheduler.schedule(this::animate, ms, TimeUnit.MILLISECONDS);
-
-        // TODO: Emit animation event to event bus
-        // with `now` for proper timing on client
-
+        eventBus.emit(next.getElement(), new Animation.Payload(ms, now));
     }
 }

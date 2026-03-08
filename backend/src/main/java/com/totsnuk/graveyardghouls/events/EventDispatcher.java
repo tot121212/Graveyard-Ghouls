@@ -1,4 +1,4 @@
-package com.totsnuk.graveyardghouls.event;
+package com.totsnuk.graveyardghouls.events;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,10 +14,10 @@ import lombok.extern.slf4j.Slf4j;
  * Basic implementation of a event dispatcher with pre, main, and post hooks.
  * - all my homies hate type safety
  *
- * @param <E> Enum type representing the events of the event dispatcher
+ * @param <E> Any enum element
  */
 @Slf4j
-public class EventDispatcher<E> {
+public class EventDispatcher<E extends Event> {
 
     private final Map<E, List<Consumer<Record>>> preHooks = new HashMap<>();
     private final Map<E, List<Consumer<Record>>> mainHooks = new HashMap<>();
