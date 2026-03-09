@@ -105,6 +105,6 @@ public class Game {
     }
 
     public void onAnimate(Animation animation, long ms, long timePlayed) {
-        // TODO:
+        // TODO: Send data to client
     }
 }
