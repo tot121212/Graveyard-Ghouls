@@ -12,6 +12,7 @@ import com.totsnuk.graveyardghouls.events.Event;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
 import com.totsnuk.graveyardghouls.events.InterruptState;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
  * state transitions.
  */
 @RequiredArgsConstructor
+@Getter
 public class GameActionSequencer {
     private static final int REALTIME_TIMER_TIME = 3;
     private final EventDispatcher<Event> eventBus;
@@ -39,10 +41,10 @@ public class GameActionSequencer {
     private final Queue<GameAction> staticQueue = new LinkedBlockingQueue<>();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private InterruptState state = InterruptState.IDLE;
+    private InterruptState state = InterruptState.INACTIVE;
 
     public boolean clear() {
-        if (state != InterruptState.IDLE)
+        if (state != InterruptState.INACTIVE)
             return false;
         realtimeStack.clear();
         staticQueue.clear();
@@ -54,16 +56,6 @@ public class GameActionSequencer {
      */
     public boolean hasStatic() {
         return !staticQueue.isEmpty();
-    }
-
-    public boolean addStatic(GameAction action) {
-        if (state != InterruptState.IDLE)
-            return false;
-        // if realtimeStack has an action, static action queue is locked
-        if (isRealtime())
-            return false;
-        staticQueue.add(action);
-        return true;
     }
 
     /**
@@ -88,14 +80,28 @@ public class GameActionSequencer {
         }, REALTIME_TIMER_TIME, TimeUnit.SECONDS);
     }
 
+    public synchronized boolean enqueue(GameAction action) {
+        if (action.getDescriptor().isRealtime())
+            return addRealtime(action);
+        else
+            return addStatic(action);
+    }
+
+    private boolean addStatic(GameAction action) {
+        if (state != InterruptState.INACTIVE || isRealtime())
+            return false;
+        staticQueue.add(action);
+        return true;
+    }
+
     /**
      * Adds realtime actions to the stack <br>
      * Triggers realtime if not already triggered <br>
      * Ensures that actions happen in the proper state
      */
-    public synchronized boolean addRealtime(GameAction action) {
+    private boolean addRealtime(GameAction action) {
         switch (state) {
-            case InterruptState.IDLE -> {
+            case InterruptState.INACTIVE -> {
                 state = InterruptState.WAITING;
                 eventBus.emit(state, null);
 

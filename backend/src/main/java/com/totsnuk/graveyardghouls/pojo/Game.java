@@ -8,8 +8,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
 import com.totsnuk.graveyardghouls.events.Event;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
-import com.totsnuk.graveyardghouls.events.GameActionEvent;
-import com.totsnuk.graveyardghouls.events.InterruptState;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -39,7 +37,7 @@ public class Game {
 
     private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(eventBus);
     private final GameActionSequencer gameActionSequencer = new GameActionSequencer(eventBus);
-    private final AnimationHandler animationHandler = new AnimationHandler(eventBus);
+    private final AnimationHandler animationHandler = new AnimationHandler(this);
 
     private final SeatRegistry seatRegistry = new SeatRegistry();
 
@@ -48,15 +46,6 @@ public class Game {
     private final List<Player> players = new ArrayList<>();
 
     private Player currentPlayer;
-
-    public void init() {
-        link();
-        reset();
-    }
-
-    public void link() {
-        eventBus.onEvent(InterruptState.WAITING, this::onInterruptStart);
-    }
 
     public void reset() {
         this.gameActionSequencer.clear();
@@ -69,42 +58,11 @@ public class Game {
         return player == currentPlayer;
     }
 
-    /**
-     * Conditions:
-     * - isnt null
-     * - is player within players list
-     */
     private boolean isValidAction(GameAction action) {
-        return action != null
-                && players.contains(action.getPlayer());
-    }
+        if (action == null || !players.contains(action.getPlayer()))
+            return false;
 
-    /**
-     * Conditions:
-     * - realtime stack isnt active
-     * - player isnt null
-     * - is players turn
-     * - player doesnt have action enqueued already
-     */
-    private boolean isValidStaticAction(GameAction action) {
-        Player player = action.getPlayer();
-
-        return !gameActionSequencer.isRealtime()
-                && player != null
-                && isPlayerTurn(player)
-                && gameActionSequencer.hasStatic();
-    }
-
-    /**
-     * Conditions:
-     * - descriptor isnt null
-     * - descriptor is realtime
-     */
-    private boolean isValidRealtimeAction(GameAction action) {
-        GameActionDescriptor descriptor = action.getDescriptor();
-
-        return descriptor != null
-                && descriptor.isRealtime();
+        return action.getDescriptor().isRealtime() || isPlayerTurn(action.getPlayer());
     }
 
     /**
@@ -122,39 +80,11 @@ public class Game {
         GameAction action = GameActionImpl.from(dto);
         if (action == null)
             return false;
+
         if (!isValidAction(action))
             return false;
 
-        GameActionEvent actionEnum = action.getElement();
-        Player player = action.getPlayer();
-        Record payload = action.getPayload();
-
-        if (player == null || payload == null || actionEnum == null)
-            return false;
-
-        if (isValidStaticAction(action)) {
-            // enqueue action normally
-            if (!gameActionSequencer.addStatic(action))
-                return false;
-            // TODO: update stuff
-            return true;
-        } else if (isValidRealtimeAction(action)) {
-            gameActionSequencer.addRealtime(action);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Triggered when the GameActionSequencer.state is set to WAITING
-     * 
-     * @param args
-     */
-    public void onInterruptStart(Record args) {
-        // TODO: implement
-        // what to do when interrupt starts
-        // tell game to pause
-        // idk
+        return gameActionSequencer.enqueue(action);
     }
 
     /**
@@ -174,4 +104,7 @@ public class Game {
         // update.perform();
     }
 
+    public void onAnimate(Animation animation, long ms, long timePlayed) {
+        // TODO:
+    }
 }

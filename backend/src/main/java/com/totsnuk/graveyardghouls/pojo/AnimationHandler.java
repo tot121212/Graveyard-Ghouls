@@ -7,9 +7,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.totsnuk.graveyardghouls.events.Event;
-import com.totsnuk.graveyardghouls.events.EventDispatcher;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -22,8 +19,7 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class AnimationHandler {
-    private final EventDispatcher<Event> eventBus;
-    // private final SimpMessagingTemplate msgTemplate;
+    private final Game game;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Queue<Animation> queue = new ConcurrentLinkedQueue<>();
     private Animation current;
@@ -56,6 +52,6 @@ public class AnimationHandler {
         long ms = current.getMs();
         long now = Instant.now().toEpochMilli();
         scheduler.schedule(this::animate, ms, TimeUnit.MILLISECONDS);
-        eventBus.emit(next.getElement(), new Animation.Payload(ms, now));
+        game.onAnimate(next, ms, now);
     }
 }

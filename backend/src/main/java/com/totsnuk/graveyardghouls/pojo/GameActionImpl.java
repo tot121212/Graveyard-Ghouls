@@ -20,6 +20,12 @@ import lombok.Getter;
 public class GameActionImpl implements GameAction {
     public static final Map<GameActionEvent, GameActionDescriptor> elementToDescriptor = new ConcurrentHashMap<>();
 
+    /**
+     * Creates GameAction from GameActionDto
+     * 
+     * @param dto
+     * @return
+     */
     public static GameAction from(GameActionDto dto) {
         if (dto == null)
             return null;
@@ -36,6 +42,9 @@ public class GameActionImpl implements GameAction {
 
         // find descriptor from map
         GameActionDescriptor descriptor = elementToDescriptor.get(actionEnum);
+        if (descriptor == null)
+            return null;
+
         return new GameActionImpl(actionEnum, player, payload, descriptor);
     }
 
