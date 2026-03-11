@@ -17,27 +17,14 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Slf4j
 public class Game {
-    /***
-     * - Single action queue processed on one game thread; each player may have only
-     * one pending
-     * action, and Realtimes are only accepted during explicit windows with the
-     * game logically
-     * paused while resolving them. - Structural validation occurs before enqueue,
-     * full state
-     * validation on execution, ensuring determinism and resilience to spam. ---
-     * Animations - Player
-     * animations should play concurrently on the client-side and each action should
-     * be declarative
-     * server-side - No matter what happens the sequence of actions on each client
-     * is the same
-     */
+    private final EventDispatcher<Event> eventBus = new EventDispatcher<>();
+    private final GameState gameState = new GameState(eventBus);
+
     private final int MAX_ACTION_QUEUE_SIZE = 2;
 
-    private final EventDispatcher<Event> eventBus = new EventDispatcher<>();
-
-    private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(eventBus);
-    private final GameActionSequencer gameActionSequencer = new GameActionSequencer(eventBus);
-    private final AnimationHandler animationHandler = new AnimationHandler(this);
+    private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(this, gameState);
+    private final GameActionSequencer gameActionSequencer = new GameActionSequencer(gameState);
+    private final AnimationHandler animationHandler = new AnimationHandler(this, gameState);
 
     private final SeatRegistry seatRegistry = new SeatRegistry();
 
@@ -100,11 +87,7 @@ public class Game {
         // performs a blocking game update using the next element in the updateQueue
         GameUpdate update = updateQueue.poll();
         // TODO:
-        // perform the update
         // update.perform();
     }
 
-    public void onAnimate(Animation animation, long ms, long timePlayed) {
-        // TODO: Send data to client
-    }
 }

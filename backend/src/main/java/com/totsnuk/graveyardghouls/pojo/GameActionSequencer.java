@@ -1,19 +1,14 @@
 package com.totsnuk.graveyardghouls.pojo;
 
-import java.util.Queue;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.totsnuk.graveyardghouls.events.Event;
-import com.totsnuk.graveyardghouls.events.EventDispatcher;
 import com.totsnuk.graveyardghouls.events.InterruptState;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * Manages the sequencing and execution of game actions with support for both
@@ -25,26 +20,25 @@ import lombok.RequiredArgsConstructor;
  * configurable timeout mechanism and provides event emission capabilities for
  * state transitions.
  */
-@RequiredArgsConstructor
 @Getter
 public class GameActionSequencer {
     private static final int REALTIME_TIMER_TIME = 3;
-    private final EventDispatcher<Event> eventBus;
-    /**
-     * When the realtime stack has elements, the gameLoop will wait for 3 seconds
-     * for the clients to send any addtional Realtimes
-     */
-    private final BlockingQueue<GameAction> realtimeStack = new LinkedBlockingDeque<>();
-    /**
-     * For now it will be limited to one element for ease of production
-     */
-    private final Queue<GameAction> staticQueue = new LinkedBlockingQueue<>();
+
+    private final GameState gameState;
+
+    private final BlockingDeque<GameAction> realtimeStack;
+    private final BlockingQueue<GameAction> staticQueue;
+
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private InterruptState state = InterruptState.INACTIVE;
+    public GameActionSequencer(GameState gameState) {
+        this.gameState = gameState;
+        this.realtimeStack = gameState.getRealtimeStack();
+        this.staticQueue = gameState.getStaticQueue();
+    }
 
     public boolean clear() {
-        if (state != InterruptState.INACTIVE)
+        if (gameState.getInterruptState() != InterruptState.INACTIVE)
             return false;
         realtimeStack.clear();
         staticQueue.clear();
@@ -74,8 +68,7 @@ public class GameActionSequencer {
         scheduler.schedule(() -> {
             System.out.println("Timeout reached! Resolving stack.");
 
-            state = InterruptState.RESOLVING;
-            eventBus.emit(state, null);
+            gameState.setInterruptState(InterruptState.RESOLVING);
 
         }, REALTIME_TIMER_TIME, TimeUnit.SECONDS);
     }
@@ -88,7 +81,7 @@ public class GameActionSequencer {
     }
 
     private boolean addStatic(GameAction action) {
-        if (state != InterruptState.INACTIVE || isRealtime())
+        if (gameState.getInterruptState() != InterruptState.INACTIVE || isRealtime())
             return false;
         staticQueue.add(action);
         return true;
@@ -100,10 +93,9 @@ public class GameActionSequencer {
      * Ensures that actions happen in the proper state
      */
     private boolean addRealtime(GameAction action) {
-        switch (state) {
+        switch (gameState.getInterruptState()) {
             case InterruptState.INACTIVE -> {
-                state = InterruptState.WAITING;
-                eventBus.emit(state, null);
+                gameState.setInterruptState(InterruptState.WAITING);
 
                 staticQueue.clear();
                 realtimeStack.add(action);

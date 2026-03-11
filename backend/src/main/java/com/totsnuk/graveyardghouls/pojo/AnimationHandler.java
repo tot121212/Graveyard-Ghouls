@@ -20,9 +20,10 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class AnimationHandler {
     private final Game game;
+    private final GameState gameState;
+
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Queue<Animation> queue = new ConcurrentLinkedQueue<>();
-    private Animation current;
 
     /**
      * Adds animation to queue and triggers animate if not already triggered
@@ -31,7 +32,7 @@ public class AnimationHandler {
         if (anim == null)
             return false;
         queue.add(anim);
-        if (current == null)
+        if (gameState.getCurrentAnimation() == null)
             animate();
         return true;
     }
@@ -45,13 +46,13 @@ public class AnimationHandler {
     private void animate() {
         Animation next = queue.poll();
         if (next == null) {
-            current = null;
+            gameState.setCurrentAnimation(null);
             return;
         }
-        current = next;
-        long ms = current.getMs();
+        gameState.setCurrentAnimation(next);
+        long ms = gameState.getCurrentAnimation().getMs();
         long now = Instant.now().toEpochMilli();
         scheduler.schedule(this::animate, ms, TimeUnit.MILLISECONDS);
-        game.onAnimate(next, ms, now);
+        gameState.onAnimate(next, ms, now);
     }
 }

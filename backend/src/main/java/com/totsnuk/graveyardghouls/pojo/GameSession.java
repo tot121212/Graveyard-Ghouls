@@ -5,7 +5,8 @@ import com.totsnuk.graveyardghouls.dto.JoinDto;
 import com.totsnuk.graveyardghouls.enums.result.JoinResult;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
 import com.totsnuk.graveyardghouls.events.GameActionEvent;
-import com.totsnuk.graveyardghouls.events.GameLifecycleState;
+import com.totsnuk.graveyardghouls.events.LifecycleState;
+import com.totsnuk.graveyardghouls.websocket.MessageRouter;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class GameSession extends ManagedEntity {
     public static final int GAME_SESSION_INACTIVE_DURATION_IN_MIN = 2;
 
     private final Game game = new Game();
-
+    private final MessageRouter messageRouter = new MessageRouter();
     private final ParticipantRegistry participantRegistry = new ParticipantRegistry();
 
     public GameSession() {
@@ -40,12 +41,12 @@ public class GameSession extends ManagedEntity {
      * @return Participant or null
      */
     public synchronized JoinDto connect() {
-        final EventDispatcher<GameLifecycleState> lifecycleEventDispatcher = game.getGameLifecycleEventDispatcher();
+        final EventDispatcher<LifecycleState> lifecycleEventDispatcher = game.getGameLifecycleEventDispatcher();
         final SeatRegistry seatRegistry = game.getSeatRegistry();
 
         switch (lifecycleEventDispatcher.get()) {
 
-            case GameLifecycleState.LOBBY, GameLifecycleState.READY -> {
+            case LifecycleState.LOBBY, LifecycleState.READY -> {
                 final Participant participant = new Participant();
 
                 Seat seat = seatRegistry.occupy(participant);
@@ -80,7 +81,7 @@ public class GameSession extends ManagedEntity {
         if (participant == null)
             return null;
 
-        if (game.getGameLifecycleEventDispatcher().get() != GameLifecycleState.PAUSED) {
+        if (game.getGameLifecycleEventDispatcher().get() != LifecycleState.PAUSED) {
             return null;
         }
 
@@ -105,7 +106,7 @@ public class GameSession extends ManagedEntity {
 
         switch (game.getGameLifecycleHandler().getState()) {
             // Player who leaves spot can be filled by anyone
-            case GameLifecycleState.LOBBY -> {
+            case LifecycleState.LOBBY -> {
                 // TODO:
                 // remove connection
                 // tell seatRegistry to unoccupy seat
@@ -113,7 +114,7 @@ public class GameSession extends ManagedEntity {
                 // delete participant
                 participantRegistry.remove(participant);
             }
-            case GameLifecycleState.PAUSED -> {
+            case LifecycleState.PAUSED -> {
                 // fire the disconnect event
             }
             default -> {

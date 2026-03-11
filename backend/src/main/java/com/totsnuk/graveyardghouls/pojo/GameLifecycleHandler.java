@@ -1,8 +1,6 @@
 package com.totsnuk.graveyardghouls.pojo;
 
-import com.totsnuk.graveyardghouls.events.Event;
-import com.totsnuk.graveyardghouls.events.EventDispatcher;
-import com.totsnuk.graveyardghouls.events.GameLifecycleState;
+import com.totsnuk.graveyardghouls.events.LifecycleState;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,13 +10,13 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class GameLifecycleHandler {
-    private final EventDispatcher<Event> eventBus;
-    private GameLifecycleState state = GameLifecycleState.LOBBY;
+    private final Game game;
+    private final GameState gameState;
 
-    public boolean set(GameLifecycleState state) {
-        if (state != null && state instanceof GameLifecycleState) {
-            this.state = state;
-            eventBus.emit(state, null);
+    public boolean set(LifecycleState state) {
+        if (state != null && state instanceof LifecycleState) {
+            gameState.setLifecycle(state);
+            gameState.onSetLifecycleState(state);
         }
 
         return false;
