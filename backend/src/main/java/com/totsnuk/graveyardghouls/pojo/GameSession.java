@@ -95,10 +95,10 @@ public class GameSession extends ManagedEntity {
      * @param GameConnection
      * @return
      */
-    public synchronized boolean disconnect(String id, String privateToken) {
+    public synchronized boolean disconnect(String publicId, String privateToken) {
         // use id and token to auth that it is the right person
         // get existing participant
-        Participant participant = participantRegistry.getByPrivate(id, privateToken);
+        Participant participant = participantRegistry.getByPrivate(publicId, privateToken);
         if (participant == null) {
             log.warn("Participant could not be found");
             return false;

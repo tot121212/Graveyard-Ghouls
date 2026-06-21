@@ -22,8 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * This controller handles all gameSession creation, deletion, joining, and
- * leaving. Also, handles
+ * This controller handles all gameSession creation, deletion, joining, and leaving. Also, handles
  * changing display name for players
  */
 @RestController
@@ -98,9 +97,10 @@ public class GameSessionController {
 
     @PostMapping("/leave/{gameSessionId}")
     public ResponseEntity<Void> postLeaveGame(@CookieValue(GameCookies.PUBLIC_ID) String pid,
+            @CookieValue(GameCookies.PRIVATE_TOKEN) String privateToken,
             @PathVariable(GameCookies.GAME_SESSION_ID) String gid) {
 
-        boolean result = gameSessionService.leave(gid, pid);
+        boolean result = gameSessionService.leave(gid, pid, privateToken);
 
         return result ? ResponseEntity.status(HttpStatus.OK).build()
                 : ResponseEntity.status(HttpStatus.NOT_FOUND).build();

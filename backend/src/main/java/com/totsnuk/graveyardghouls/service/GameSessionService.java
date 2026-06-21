@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 
 import com.totsnuk.graveyardghouls.component.GameSessionRegistry;
 import com.totsnuk.graveyardghouls.dto.JoinDto;
-import com.totsnuk.graveyardghouls.dto.rest.JoinGameResponse;
 import com.totsnuk.graveyardghouls.pojo.GameSession;
 
 import jakarta.annotation.Nullable;
@@ -28,7 +27,7 @@ public class GameSessionService {
     }
 
     public JoinDto join(String gid) {
-        join(gid, null, null, null);
+        return join(gid, null, null);
     }
 
     /**
@@ -36,10 +35,7 @@ public class GameSessionService {
      * 
      * @return Player ID for this particular user in the session
      */
-    public JoinDto join(
-            String gid,
-            @Nullable String participantId,
-            @Nullable String privateToken) {
+    public JoinDto join(String gid, @Nullable String participantId, @Nullable String privateToken) {
 
         // find game session
         GameSession gameSession = gameSessionRegistry.get(gid);
@@ -57,12 +53,12 @@ public class GameSessionService {
      * @param gid
      * @param pid
      */
-    public boolean leave(String gid, String privateToken) {
+    public boolean leave(String gid, String pid, String privateToken) {
         GameSession gameSession = gameSessionRegistry.get(gid);
         if (gameSession == null) {
             log.warn("gameSession not found");
             return false;
         }
-        return gameSession.disconnect(privateToken);
+        return gameSession.disconnect(pid, privateToken);
     }
 }
