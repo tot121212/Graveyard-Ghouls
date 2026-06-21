@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import com.totsnuk.graveyardghouls.enums.SessionAttributes;
 import com.totsnuk.graveyardghouls.pojo.GameSession;
 import com.totsnuk.graveyardghouls.pojo.Participant;
 
@@ -26,10 +27,12 @@ public class GameLobbyController {
     public Boolean msgChangePlayerDisplayName(SimpMessageHeaderAccessor sha,
             @PathVariable String name) {
         // get participant from stomp session attributes
-        GameSession gameSession = (GameSession) sha.getSessionAttributes().get("gameSession");
-        Participant participant = (Participant) sha.getSessionAttributes().get("participant");
-        if (participant == null)
+        GameSession gameSession = (GameSession) sha.getSessionAttributes().get(SessionAttributes.GAME_SESSION);
+        Participant participant = (Participant) sha.getSessionAttributes().get(SessionAttributes.PARTICIPANT);
+        if (gameSession == null || participant == null)
             return false;
+
+        //TODO: implement
 
         return true;
     }
