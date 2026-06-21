@@ -56,10 +56,6 @@ public class GameState {
      */
     private final BlockingQueue<GameAction> staticQueue = new LinkedBlockingQueue<>();
 
-    public void onSetLifecycleState(LifecycleState state) {
-        // TODO: send to client
-    }
-
     public void onAnimate(Animation animation, long ms, long timePlayed) {
         // TODO: Send data to client
     }
