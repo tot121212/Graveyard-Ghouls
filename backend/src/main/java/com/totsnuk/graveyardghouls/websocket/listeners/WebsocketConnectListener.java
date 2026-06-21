@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 
 import com.totsnuk.graveyardghouls.component.GameSessionRegistry;
+import com.totsnuk.graveyardghouls.enums.GameCookies;
 import com.totsnuk.graveyardghouls.pojo.GameSession;
 import com.totsnuk.graveyardghouls.pojo.Participant;
 
@@ -27,9 +28,9 @@ public class WebsocketConnectListener implements ApplicationListener<SessionConn
         log.info("Spring STOMP session connected");
         Map<String, Object> sAttrs = sha.getSessionAttributes();
 
-        String gid = (String) sAttrs.get("gameSessionId");
-        String publicId = (String) sAttrs.get("publicId");
-        String privateToken = (String) sAttrs.get("privateToken");
+        String gid = (String) sAttrs.get(GameCookies.GAME_SESSION_ID);
+        String publicId = (String) sAttrs.get(GameCookies.PUBLIC_ID);
+        String privateToken = (String) sAttrs.get(GameCookies.PRIVATE_TOKEN);
         if (gid == null || publicId == null || privateToken == null)
             return;
 
@@ -37,7 +38,8 @@ public class WebsocketConnectListener implements ApplicationListener<SessionConn
         if (gameSession == null)
             return;
 
-        Participant participant = gameSession.getParticipantRegistry().getByPrivate(publicId, privateToken);
+        Participant participant =
+                gameSession.getParticipantRegistry().getByPrivate(publicId, privateToken);
         if (participant == null)
             return;
 
