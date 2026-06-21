@@ -51,6 +51,15 @@ public class EventDispatcher<E extends Event> {
     }
 
     /**
+     * Emits event hooks without args
+     *
+     * @param event the new current event
+     */
+    public void emit(E event){
+        emit(event, null);
+    }
+
+    /**
      * Emits pre, main, and post hooks for a given event synchronously.
      *
      * @param event the event for which to emit hooks
