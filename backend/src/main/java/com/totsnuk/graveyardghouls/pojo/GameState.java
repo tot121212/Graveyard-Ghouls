@@ -15,8 +15,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 /**
- * Stores all state
- * allows for easy creation of updates for client
+ * Stores all game state </br>
+ * Allows for easy creation of updates for client
+ * TODO: convert entirely to a record
  */
 @Setter
 @Getter
