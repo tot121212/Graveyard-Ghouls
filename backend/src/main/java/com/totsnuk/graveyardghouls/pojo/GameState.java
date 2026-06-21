@@ -41,7 +41,7 @@ public class GameState {
 
     public void setInterruptState(InterruptState state) {
         this.interruptState = state;
-        eventBus.emit(this.interruptState, null);
+        eventBus.emit(this.interruptState);
     }
 
     /**
