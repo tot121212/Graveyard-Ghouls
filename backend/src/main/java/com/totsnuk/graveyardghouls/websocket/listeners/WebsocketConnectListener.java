@@ -9,6 +9,7 @@ import org.springframework.web.socket.messaging.SessionConnectEvent;
 
 import com.totsnuk.graveyardghouls.component.GameSessionRegistry;
 import com.totsnuk.graveyardghouls.enums.GameCookies;
+import com.totsnuk.graveyardghouls.enums.SessionAttributes;
 import com.totsnuk.graveyardghouls.pojo.GameSession;
 import com.totsnuk.graveyardghouls.pojo.Participant;
 
@@ -46,7 +47,7 @@ public class WebsocketConnectListener implements ApplicationListener<SessionConn
         // Store participant and gameSession on the websocket session for easy routing
         // NOTE: if we decide to containerize the game server itself, we can do that
         // without issue.
-        sAttrs.put("participant", participant);
-        sAttrs.put("gameSession", gameSession);
+        sAttrs.put(SessionAttributes.PARTICIPANT, participant);
+        sAttrs.put(SessionAttributes.GAME_SESSION, gameSession);
     }
 }
