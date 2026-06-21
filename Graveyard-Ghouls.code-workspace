@@ -17,7 +17,7 @@
         "java.codeGeneration.generateComments": false,
         "java.inlayHints.variableTypes.enabled": false,
 
-        "editor.formatOnSave": true,
+        "editor.formatOnSave": false,
         "editor.formatOnPaste": true
     }
 }
