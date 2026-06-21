@@ -66,13 +66,11 @@ public class GameSessionController {
         if (dto == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 
-        HttpStatus status = switch (dto.result()){
-            case SUCCESS -> HttpStatus.OK;
-            default -> HttpStatus.BAD_REQUEST;
-        }
+        HttpStatus status;
 
         switch (dto.result()) {
             case JoinResult.SUCCESS -> {
+                status = HttpStatus.OK;
                 if (dto.privateToken() == null || dto.participantId() == null)
                     throw new IllegalStateException("privateToken and participantId must exist");
 
@@ -90,9 +88,12 @@ public class GameSessionController {
                 pubCookie.setMaxAge(ONE_DAY);
                 httpServletResponse.addCookie(pubCookie);
             }
+            default -> {
+                status = HttpStatus.BAD_REQUEST;
+            }
         }
-        
-        return ResponseEntity.status(status).body(dto);
+        // only need to respond with gameId confirming that they joined as the cookie was set for privateToken and participantId above.
+        return ResponseEntity.status(status).build();
     }
 
     @PostMapping("/leave/{gameSessionId}")
