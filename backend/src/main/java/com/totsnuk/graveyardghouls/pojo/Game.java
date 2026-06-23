@@ -24,7 +24,6 @@ public class Game {
 
     private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(gameState, eventBus);
     private final GameActionSequencer gameActionSequencer = new GameActionSequencer(gameState);
-    private final AnimationHandler animationHandler = new AnimationHandler(this, gameState);
 
     private final SeatRegistry seatRegistry = new SeatRegistry();
 

@@ -24,6 +24,7 @@ public class AnimationHandler {
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private final Queue<Animation> queue = new ConcurrentLinkedQueue<>();
+    private Animation currentAnimation;
 
     /**
      * Adds animation to queue and triggers animate if not already triggered
@@ -32,7 +33,7 @@ public class AnimationHandler {
         if (anim == null)
             return false;
         queue.add(anim);
-        if (gameState.getCurrentAnimation() == null)
+        if (currentAnimation == null)
             animate();
         return true;
     }
@@ -46,13 +47,13 @@ public class AnimationHandler {
     private void animate() {
         Animation next = queue.poll();
         if (next == null) {
-            gameState.setCurrentAnimation(null);
+            currentAnimation = null;
             return;
         }
-        gameState.setCurrentAnimation(next);
-        long ms = gameState.getCurrentAnimation().getMs();
+        currentAnimation = next;
+        long ms = currentAnimation.getMs();
         long now = Instant.now().toEpochMilli();
         scheduler.schedule(this::animate, ms, TimeUnit.MILLISECONDS);
-        gameState.onAnimate(next, ms, now);
+        // trigger anim event
     }
 }
