@@ -29,7 +29,7 @@ public class GameState {
     
     public void setLifecycle(LifecycleState lifecycle) {
         this.lifecycle = lifecycle;
-        eventBus.emit(lifecycle);
+        eventBus.emit(this.lifecycle);
     }
     
     /**
@@ -39,7 +39,7 @@ public class GameState {
     
     public void setInterruptState(InterruptState state) {
         this.interruptState = state;
-        eventBus.emit(interruptState);
+        eventBus.emit(this.interruptState);
     }
 
     /**
