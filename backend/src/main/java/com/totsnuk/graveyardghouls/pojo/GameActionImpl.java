@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
-import com.totsnuk.graveyardghouls.events.GameActionEvent;
+import com.totsnuk.graveyardghouls.events.GameActionType;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,7 +18,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class GameActionImpl implements GameAction {
-    public static final Map<GameActionEvent, GameActionDescriptor> elementToDescriptor = new ConcurrentHashMap<>();
+    public static final Map<GameActionType, GameActionDescriptor> elementToDescriptor = new ConcurrentHashMap<>();
 
     /**
      * Creates GameAction from GameActionDto
@@ -31,9 +31,9 @@ public class GameActionImpl implements GameAction {
             return null;
 
         Enum<?> e = dto.getElement();
-        if (e == null || !(e instanceof GameActionEvent))
+        if (e == null || !(e instanceof GameActionType))
             return null;
-        GameActionEvent actionEnum = (GameActionEvent) e;
+        GameActionType actionEnum = (GameActionType) e;
         Player player = dto.getPlayer();
         Record payload = dto.getPayload();
 
@@ -51,7 +51,7 @@ public class GameActionImpl implements GameAction {
     /**
      * The action they are performing
      */
-    private final GameActionEvent element;
+    private final GameActionType element;
     /**
      * The player executing the action
      */

@@ -3,7 +3,7 @@ package com.totsnuk.graveyardghouls.pojo;
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
 import com.totsnuk.graveyardghouls.dto.JoinDto;
 import com.totsnuk.graveyardghouls.enums.result.JoinResult;
-import com.totsnuk.graveyardghouls.events.GameActionEvent;
+import com.totsnuk.graveyardghouls.events.GameActionType;
 import com.totsnuk.graveyardghouls.events.LifecycleState;
 import com.totsnuk.graveyardghouls.websocket.MessageRouter;
 
@@ -129,7 +129,7 @@ public class GameSession extends ManagedEntity {
     public boolean executeGameAction(
             String participantId,
             String privateToken,
-            GameActionEvent actionEnum,
+            GameActionType actionEnum,
             Record payload) {
 
         if (participantId == null

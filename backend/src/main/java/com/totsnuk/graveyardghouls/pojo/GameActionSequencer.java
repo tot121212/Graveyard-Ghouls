@@ -23,6 +23,7 @@ import lombok.Getter;
  */
 @Getter
 public class GameActionSequencer {
+    // TODO: probably need the event bus to send signals to triggers to be added to the realtime queue
     private final GameState gameState;
 
     private final BlockingDeque<GameAction> realtimeStack;
