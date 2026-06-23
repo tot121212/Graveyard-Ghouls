@@ -20,8 +20,6 @@ public class Game {
     private final EventDispatcher<Event> eventBus = new EventDispatcher<>();
     private final GameState gameState = new GameState(eventBus);
 
-    private final int MAX_ACTION_QUEUE_SIZE = 2;
-
     private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(gameState, eventBus);
     private final GameActionSequencer gameActionSequencer = new GameActionSequencer(gameState);
 

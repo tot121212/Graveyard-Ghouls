@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.totsnuk.graveyardghouls.enums.GameSettings;
 import com.totsnuk.graveyardghouls.events.InterruptState;
 
 import lombok.Getter;
@@ -22,8 +23,6 @@ import lombok.Getter;
  */
 @Getter
 public class GameActionSequencer {
-    private static final int REALTIME_TIMER_TIME = 3;
-
     private final GameState gameState;
 
     private final BlockingDeque<GameAction> realtimeStack;
@@ -70,7 +69,7 @@ public class GameActionSequencer {
 
             gameState.setInterruptState(InterruptState.RESOLVING);
 
-        }, REALTIME_TIMER_TIME, TimeUnit.SECONDS);
+        }, GameSettings.REALTIME_TIMER_TIME, TimeUnit.SECONDS);
     }
 
     public synchronized boolean enqueue(GameAction action) {
