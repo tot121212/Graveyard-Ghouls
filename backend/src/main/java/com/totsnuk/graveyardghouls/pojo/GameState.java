@@ -12,14 +12,11 @@ import com.totsnuk.graveyardghouls.events.LifecycleState;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 /**
  * Stores all game state </br>
  * Allows for easy creation of updates for client
- * TODO: convert entirely to a record
  */
-@Setter
 @Getter
 @RequiredArgsConstructor
 public class GameState {
@@ -29,20 +26,20 @@ public class GameState {
      * Lifecycle of game
      */
     private LifecycleState lifecycle = LifecycleState.LOBBY;
-
-    /**
-     * Current animation that is playing
-     */
-    private Animation currentAnimation;
-
+    
+    public void setLifecycle(LifecycleState lifecycle) {
+        this.lifecycle = lifecycle;
+        eventBus.emit(lifecycle);
+    }
+    
     /**
      * State of interrupt
      */
     private InterruptState interruptState = InterruptState.INACTIVE;
-
+    
     public void setInterruptState(InterruptState state) {
         this.interruptState = state;
-        eventBus.emit(this.interruptState);
+        eventBus.emit(interruptState);
     }
 
     /**
@@ -55,8 +52,4 @@ public class GameState {
      * For now it will be limited to one element for ease of production
      */
     private final BlockingQueue<GameAction> staticQueue = new LinkedBlockingQueue<>();
-
-    public void onAnimate(Animation animation, long ms, long timePlayed) {
-        // TODO: Send data to client
-    }
 }
