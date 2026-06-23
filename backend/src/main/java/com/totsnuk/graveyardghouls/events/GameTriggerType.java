@@ -1,11 +1,12 @@
 package com.totsnuk.graveyardghouls.events;
 
-public enum GameEventType implements Event{
+public enum GameTriggerType implements Event{
+    TURN_STARTED,
+    TURN_ENDED,
     CARD_PLAYED,
-    UNIT_CREATED,
+    ABILITY_ACTIVATED,
     UNIT_ENTERED_BATTLEFIELD,
     UNIT_LEFT_BATTLEFIELD,
     ATTACK_DECLARED,
     DAMAGE_DEALT,
-    UNIT_DIED
 }
