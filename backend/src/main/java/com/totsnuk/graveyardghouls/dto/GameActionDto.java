@@ -1,6 +1,6 @@
 package com.totsnuk.graveyardghouls.dto;
 
-import com.totsnuk.graveyardghouls.events.GameActionType;
+import com.totsnuk.graveyardghouls.enums.GameActionType;
 import com.totsnuk.graveyardghouls.pojo.Player;
 
 import lombok.AllArgsConstructor;

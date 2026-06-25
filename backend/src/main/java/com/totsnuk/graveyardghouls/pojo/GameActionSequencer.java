@@ -7,8 +7,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import com.totsnuk.graveyardghouls.enums.GameSettings;
-import com.totsnuk.graveyardghouls.events.InterruptState;
-
+import com.totsnuk.graveyardghouls.enums.InterruptState;
 import lombok.Getter;
 
 /**

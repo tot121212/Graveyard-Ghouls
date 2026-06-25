@@ -1,6 +1,6 @@
-package com.totsnuk.graveyardghouls.events;
+package com.totsnuk.graveyardghouls.enums;
 
-public enum InterruptState implements Event {
+public enum InterruptState {
     INACTIVE, // no timer running
     WAITING, // timer running, waiting for more actions
     RESOLVING // currently processing stack

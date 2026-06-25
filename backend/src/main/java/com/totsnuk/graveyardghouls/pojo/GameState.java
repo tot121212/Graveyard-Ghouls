@@ -5,10 +5,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.totsnuk.graveyardghouls.events.Event;
+import com.totsnuk.graveyardghouls.enums.InterruptState;
+import com.totsnuk.graveyardghouls.enums.LifecycleState;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
-import com.totsnuk.graveyardghouls.events.InterruptState;
-import com.totsnuk.graveyardghouls.events.LifecycleState;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class GameState {
-    private final EventDispatcher<Event> eventBus;
+    private final EventDispatcher eventBus;
 
     /**
      * Lifecycle of game

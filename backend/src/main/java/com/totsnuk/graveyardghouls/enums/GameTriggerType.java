@@ -1,6 +1,6 @@
-package com.totsnuk.graveyardghouls.events;
+package com.totsnuk.graveyardghouls.enums;
 
-public enum GameTriggerType implements Event{
+public enum GameTriggerType {
     TURN_STARTED,
     TURN_ENDED,
     CARD_PLAYED,

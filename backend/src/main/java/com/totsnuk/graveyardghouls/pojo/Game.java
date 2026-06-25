@@ -6,7 +6,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.totsnuk.graveyardghouls.dto.GameActionDto;
-import com.totsnuk.graveyardghouls.events.Event;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
 
 import lombok.Getter;
@@ -17,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 @Setter
 @Slf4j
 public class Game {
-    private final EventDispatcher<Event> eventBus = new EventDispatcher<>();
+    private final EventDispatcher eventBus = new EventDispatcher();
     private final GameState gameState = new GameState(eventBus);
 
     private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(gameState, eventBus);
@@ -68,6 +67,7 @@ public class Game {
         if (!isValidAction(action))
             return false;
 
+        //TODO: handle event triggering
         return gameActionSequencer.enqueue(action);
     }
 
