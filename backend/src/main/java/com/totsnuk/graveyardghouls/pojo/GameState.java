@@ -52,4 +52,26 @@ public class GameState {
      * For now it will be limited to one element for ease of production
      */
     private final BlockingQueue<GameAction> staticQueue = new LinkedBlockingQueue<>();
+
+    /**
+     * Record type for storage of game state
+     */
+    public record GameStateRecord(
+        LifecycleState lifecycle,
+        InterruptState interruptState,
+        BlockingDeque<GameAction> realtimeStack,
+        BlockingQueue<GameAction> staticQueue
+    ){};
+    
+    /**
+     * Get method used for getting an instance of the currently held state of the game
+     */
+    private GameStateRecord get(){
+        return new GameStateRecord(
+            this.lifecycle,
+            this.interruptState,
+            this.realtimeStack,
+            this.staticQueue
+        );
+    }
 }
