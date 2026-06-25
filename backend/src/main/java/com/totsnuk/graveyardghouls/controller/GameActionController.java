@@ -11,5 +11,5 @@ import lombok.AllArgsConstructor;
 @SendTo("/topic/lobby")
 @AllArgsConstructor
 public class GameActionController {
-
+    /** TODO: send request to gameSession */
 }

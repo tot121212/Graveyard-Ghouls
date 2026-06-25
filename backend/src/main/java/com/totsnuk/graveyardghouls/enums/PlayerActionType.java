@@ -1,6 +1,6 @@
 package com.totsnuk.graveyardghouls.enums;
 
-public enum GameActionType {
+public enum PlayerActionType {
     PLAY_CARD,
     ACTIVATE_ABILITY,
     ATTACK,

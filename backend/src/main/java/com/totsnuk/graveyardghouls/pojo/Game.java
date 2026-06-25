@@ -1,7 +1,5 @@
 package com.totsnuk.graveyardghouls.pojo;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -20,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 public class Game {
     private final EventDispatcher eventBus = new EventDispatcher();
     private final GameState gameState = new GameState(eventBus);
+    private final PlayerRegistry playerRegistry = new PlayerRegistry(eventBus);
 
     private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(gameState, eventBus);
     private final GameActionSequencer gameActionSequencer = new GameActionSequencer(gameState);
@@ -28,26 +27,18 @@ public class Game {
 
     private final Queue<GameUpdate> updateQueue = new ConcurrentLinkedQueue<>();
 
-    private final List<Player> players = new ArrayList<>();
-
-    private Player currentPlayer;
-
     public void reset() {
         this.gameActionSequencer.clear();
-        this.players.clear();
+        this.playerRegistry.clear();
         // shouldn't do this -V- because we want to return to lobby after game ends
         // this.seatRegistry.reset();
     }
 
-    public boolean isPlayerTurn(Player player) {
-        return player == currentPlayer;
-    }
-
     private boolean isValidPlayerAction(PlayerAction action) {
-        if (action == null || !players.contains(action.getPlayer()))
+        if (action == null || !playerRegistry.contains(action.getPlayer()))
             return false;
 
-        return action.getDescriptor().isRealtime() || isPlayerTurn(action.getPlayer());
+        return action.getDescriptor().isRealtime() || playerRegistry.isPlayerTurn(action.getPlayer());
     }
 
     /**
