@@ -8,6 +8,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.totsnuk.graveyardghouls.enums.InterruptState;
 import com.totsnuk.graveyardghouls.enums.LifecycleState;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
+import com.totsnuk.graveyardghouls.events.GameEvent;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -45,12 +46,12 @@ public class GameState {
      * When the realtime stack has elements, the gameLoop will wait for 3 seconds
      * for the clients to send any addtional Realtimes
      */
-    private final BlockingDeque<GameAction> realtimeStack = new LinkedBlockingDeque<>();
+    private final BlockingDeque<GameEvent<?>> realtimeStack = new LinkedBlockingDeque<>();
 
     /**
      * For now it will be limited to one element for ease of production
      */
-    private final BlockingQueue<GameAction> staticQueue = new LinkedBlockingQueue<>();
+    private final BlockingQueue<GameEvent<?>> staticQueue = new LinkedBlockingQueue<>();
 
     /**
      * Record type for storage of game state
@@ -58,8 +59,8 @@ public class GameState {
     public record GameStateRecord(
         LifecycleState lifecycle,
         InterruptState interruptState,
-        BlockingDeque<GameAction> realtimeStack,
-        BlockingQueue<GameAction> staticQueue
+        BlockingDeque<GameEvent<?>> realtimeStack,
+        BlockingQueue<GameEvent<?>> staticQueue
     ){};
     
     /**

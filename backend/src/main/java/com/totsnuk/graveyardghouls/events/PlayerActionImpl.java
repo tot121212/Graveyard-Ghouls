@@ -1,10 +1,13 @@
-package com.totsnuk.graveyardghouls.pojo;
+package com.totsnuk.graveyardghouls.events;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.totsnuk.graveyardghouls.dto.GameActionDto;
+import com.totsnuk.graveyardghouls.dto.PlayerActionDto;
 import com.totsnuk.graveyardghouls.enums.GameActionType;
+import com.totsnuk.graveyardghouls.pojo.GameActionDescriptor;
+import com.totsnuk.graveyardghouls.pojo.Player;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -16,25 +19,25 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public class GameActionImpl implements GameAction {
+public class PlayerActionImpl implements PlayerAction {
     public static final Map<GameActionType, GameActionDescriptor> elementToDescriptor = new ConcurrentHashMap<>();
 
     /**
-     * Creates GameAction from GameActionDto
+     * Creates GameEvent<?> from PlayerActionDto
      * 
      * @param dto
      * @return
      */
-    public static GameAction from(GameActionDto dto) {
+    public static PlayerAction from(PlayerActionDto dto) {
         if (dto == null)
             return null;
 
-        Enum<?> e = dto.getElement();
+        Enum<?> e = dto.element();
         if (e == null || !(e instanceof GameActionType))
             return null;
         GameActionType actionEnum = (GameActionType) e;
-        Player player = dto.getPlayer();
-        Record payload = dto.getPayload();
+        Player player = dto.player();
+        Record payload = dto.payload();
 
         if (player == null || payload == null)
             return null;
@@ -44,7 +47,7 @@ public class GameActionImpl implements GameAction {
         if (descriptor == null)
             return null;
 
-        return new GameActionImpl(actionEnum, player, payload, descriptor);
+        return new PlayerActionImpl(actionEnum, player, payload, descriptor);
     }
 
     /**

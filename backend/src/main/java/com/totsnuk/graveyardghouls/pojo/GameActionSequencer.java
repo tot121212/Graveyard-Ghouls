@@ -8,6 +8,9 @@ import java.util.concurrent.TimeUnit;
 
 import com.totsnuk.graveyardghouls.enums.GameSettings;
 import com.totsnuk.graveyardghouls.enums.InterruptState;
+import com.totsnuk.graveyardghouls.events.GameEvent;
+import com.totsnuk.graveyardghouls.events.PlayerAction;
+
 import lombok.Getter;
 
 /**
@@ -25,8 +28,8 @@ public class GameActionSequencer {
     // TODO: probably need the event bus to send signals to triggers to be added to the realtime queue
     private final GameState gameState;
 
-    private final BlockingDeque<GameAction> realtimeStack;
-    private final BlockingQueue<GameAction> staticQueue;
+    private final BlockingDeque<GameEvent<?>> realtimeStack;
+    private final BlockingQueue<GameEvent<?>> staticQueue;
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
@@ -72,14 +75,14 @@ public class GameActionSequencer {
         }, GameSettings.REALTIME_TIMER_TIME, TimeUnit.SECONDS);
     }
 
-    public synchronized boolean enqueue(GameAction action) {
+    public synchronized boolean enqueue(PlayerAction action) {
         if (action.getDescriptor().isRealtime())
             return addRealtime(action);
         else
             return addStatic(action);
     }
 
-    private boolean addStatic(GameAction action) {
+    private boolean addStatic(PlayerAction action) {
         if (gameState.getInterruptState() != InterruptState.INACTIVE || isRealtime())
             return false;
         staticQueue.add(action);
@@ -91,7 +94,7 @@ public class GameActionSequencer {
      * Triggers realtime if not already triggered <br>
      * Ensures that actions happen in the proper state
      */
-    private boolean addRealtime(GameAction action) {
+    private boolean addRealtime(PlayerAction action) {
         switch (gameState.getInterruptState()) {
             case InterruptState.INACTIVE -> {
                 gameState.setInterruptState(InterruptState.WAITING);
