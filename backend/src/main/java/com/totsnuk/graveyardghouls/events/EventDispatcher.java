@@ -12,24 +12,22 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Basic implementation of a event dispatcher with pre, main, and post hooks.
- * - all my homies hate type safety
- *
- * @param <E> Any enum element
+ * Utilizes enum values for hook keys
+ * ")_
  */
 @Slf4j
-public class EventDispatcher<E extends Event> {
-
-    private final Map<E, List<Consumer<Record>>> preHooks = new HashMap<>();
-    private final Map<E, List<Consumer<Record>>> mainHooks = new HashMap<>();
-    private final Map<E, List<Consumer<Record>>> postHooks = new HashMap<>();
-    private final Set<E> events = new HashSet<>();
+public class EventDispatcher {
+    private final Map<Enum<?>, List<Consumer<Record>>> preHooks = new HashMap<>();
+    private final Map<Enum<?>, List<Consumer<Record>>> mainHooks = new HashMap<>();
+    private final Map<Enum<?>, List<Consumer<Record>>> postHooks = new HashMap<>();
+    private final Set<Enum<?>> events = new HashSet<>();
 
     /**
      * Adds a new event to the event dispatcher and initializes hooks.
      *
      * @param event the event to add
      */
-    public void add(E event) {
+    public void add(Enum<?> event) {
         if (!events.contains(event)) {
             events.add(event);
             preHooks.put(event, new ArrayList<>());
@@ -45,7 +43,7 @@ public class EventDispatcher<E extends Event> {
      * @param event the new current event
      * @param args  structured argument object to pass to hooks when emitting
      */
-    public void emit(E event, Record args) {
+    public void emit(Enum<?> event, Record args) {
         exists(event);
         emitInternal(event, args);
     }
@@ -55,8 +53,8 @@ public class EventDispatcher<E extends Event> {
      *
      * @param event the new current event
      */
-    public void emit(E event){
-        emit(event, null);
+    public void emit(Enum<?> event){
+        this.emit(event, null);
     }
 
     /**
@@ -65,7 +63,7 @@ public class EventDispatcher<E extends Event> {
      * @param event the event for which to emit hooks
      * @param args  structured argument object for the hooks
      */
-    private void emitInternal(E event, Record args) {
+    private void emitInternal(Enum<?> event, Record args) {
         log.info("Emitting event for event: {} with args: {}", event, args);
         exists(event);
         preHooks.get(event).forEach(h -> h.accept(args));
@@ -79,7 +77,7 @@ public class EventDispatcher<E extends Event> {
      * @param event the event to check
      * @throws IllegalStateException if the event is not registered
      */
-    private void exists(E event) {
+    private void exists(Enum<?> event) {
         if (!events.contains(event)) {
             log.error("State not registered: {}", event);
             throw new IllegalStateException("State not registered: " + event);
@@ -93,7 +91,8 @@ public class EventDispatcher<E extends Event> {
      * @param event the event whose hooks to retrieve
      * @return the list of hooks for the event
      */
-    private List<Consumer<Record>> getHooks(Map<E, List<Consumer<Record>>> hooks, E event) {
+    private List<Consumer<Record>> getHooks(Map<Enum<?>, List<Consumer<Record>>> hooks, Enum<?> event) 
+    {
         log.debug("Retrieving hooks for event: {}", event);
         exists(event);
         return hooks.get(event);
@@ -105,7 +104,7 @@ public class EventDispatcher<E extends Event> {
      * @param event the event to attach the pre-hook
      * @param hook  the hook function to execute before the main event
      */
-    public void onPre(E event, Consumer<Record> hook) {
+    public void onPre(Enum<?> event, Consumer<Record> hook) {
         log.info("Registering pre hook for event: {}", event);
         getHooks(preHooks, event).add(hook);
     }
@@ -116,7 +115,7 @@ public class EventDispatcher<E extends Event> {
      * @param event the event to attach the main hook
      * @param hook  the hook function to execute during the main event
      */
-    public void onEvent(E event, Consumer<Record> hook) {
+    public void onEvent(Enum<?> event, Consumer<Record> hook) {
         log.info("Registering event hook for event: {}", event);
         getHooks(mainHooks, event).add(hook);
     }
@@ -127,7 +126,7 @@ public class EventDispatcher<E extends Event> {
      * @param event the event to attach the post-hook
      * @param hook  the hook function to execute after the main event
      */
-    public void onPost(E event, Consumer<Record> hook) {
+    public void onPost(Enum<?> event, Consumer<Record> hook) {
         log.info("Registering post hook for event: {}", event);
         getHooks(postHooks, event).add(hook);
     }
