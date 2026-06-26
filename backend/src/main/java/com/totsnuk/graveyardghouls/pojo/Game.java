@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.totsnuk.graveyardghouls.dto.PlayerActionDto;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
+import com.totsnuk.graveyardghouls.events.GameEvent;
 import com.totsnuk.graveyardghouls.events.PlayerAction;
 import com.totsnuk.graveyardghouls.events.PlayerActionImpl;
 
@@ -49,18 +50,11 @@ public class Game {
      * This style of enqueue ensures that currentPlayer can play actions
      * sequentially without waiting for animations to finish
      */
-    public synchronized boolean enqueue(PlayerActionDto dto) {
-        if (dto == null)
-            return false;
-
-        PlayerAction pAction = PlayerActionImpl.from(dto);
-        if (pAction == null)
-            return false;
-
-        if (!isValidPlayerAction(pAction))
+    public synchronized boolean enqueue(GameEvent<?> gameEvent) {
+        if (gameEvent == null)
             return false;
     
-        return gameActionSequencer.enqueue(pAction);
+        return gameActionSequencer.enqueue(gameEvent);
     }
 
     // TODO: enqueue overload for GameTrigger

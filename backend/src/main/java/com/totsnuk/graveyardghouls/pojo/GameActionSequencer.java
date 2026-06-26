@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 import com.totsnuk.graveyardghouls.enums.GameSettings;
 import com.totsnuk.graveyardghouls.enums.InterruptState;
 import com.totsnuk.graveyardghouls.events.GameEvent;
-import com.totsnuk.graveyardghouls.events.PlayerAction;
 
 import lombok.Getter;
 
@@ -75,14 +74,14 @@ public class GameActionSequencer {
         }, GameSettings.REALTIME_TIMER_TIME, TimeUnit.SECONDS);
     }
 
-    public synchronized boolean enqueue(PlayerAction action) {
+    public synchronized boolean enqueue(GameEvent<?> action) {
         if (action.getDescriptor().isRealtime())
             return addRealtime(action);
         else
             return addStatic(action);
     }
 
-    private boolean addStatic(PlayerAction action) {
+    private boolean addStatic(GameEvent<?> action) {
         if (gameState.getInterruptState() != InterruptState.INACTIVE || isRealtime())
             return false;
         staticQueue.add(action);
@@ -94,7 +93,7 @@ public class GameActionSequencer {
      * Triggers realtime if not already triggered <br>
      * Ensures that actions happen in the proper state
      */
-    private boolean addRealtime(PlayerAction action) {
+    private boolean addRealtime(GameEvent<?> action) {
         switch (gameState.getInterruptState()) {
             case InterruptState.INACTIVE -> {
                 gameState.setInterruptState(InterruptState.WAITING);

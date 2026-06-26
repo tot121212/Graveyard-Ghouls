@@ -4,6 +4,7 @@ import com.totsnuk.graveyardghouls.dto.JoinDto;
 import com.totsnuk.graveyardghouls.dto.PlayerActionDto;
 import com.totsnuk.graveyardghouls.enums.LifecycleState;
 import com.totsnuk.graveyardghouls.enums.result.JoinResult;
+import com.totsnuk.graveyardghouls.events.GameEvent;
 import com.totsnuk.graveyardghouls.websocket.MessageRouter;
 
 import lombok.Getter;
@@ -125,16 +126,14 @@ public class GameSession extends ManagedEntity {
      * Constructs a PlayerActionDto and safely transfers to enqueueAction within the
      * Game
      */
-    public boolean executeGameAction(
+    public boolean executeGameEvent(
             String participantId,
             String privateToken,
-            Enum<?> actionEnum,
-            Record payload) {
+            GameEvent<?> gameEvent) {
 
         if (participantId == null
                 || privateToken == null
-                || actionEnum == null
-                || payload == null) {
+                || gameEvent == null) {
             return false;
         }
 
@@ -151,6 +150,6 @@ public class GameSession extends ManagedEntity {
             return false;
 
         // pass call along but with player instead of privateToken
-        return game.enqueue(new PlayerActionDto(actionEnum, player, payload));
+        return game.enqueue(gameEvent);
     }
 }
