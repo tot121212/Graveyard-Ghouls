@@ -3,11 +3,9 @@ package com.totsnuk.graveyardghouls.pojo;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import com.totsnuk.graveyardghouls.dto.PlayerActionDto;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
 import com.totsnuk.graveyardghouls.events.GameEvent;
 import com.totsnuk.graveyardghouls.events.PlayerAction;
-import com.totsnuk.graveyardghouls.events.PlayerActionImpl;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -22,14 +20,14 @@ public class Game {
     private final PlayerRegistry playerRegistry = new PlayerRegistry(eventBus);
 
     private final GameLifecycleHandler lifecycleHandler = new GameLifecycleHandler(gameState, eventBus);
-    private final GameActionSequencer gameActionSequencer = new GameActionSequencer(gameState);
+    private final GameEventSequencer gameEventSequencer = new GameEventSequencer(gameState);
 
     private final SeatRegistry seatRegistry = new SeatRegistry();
 
     private final Queue<GameUpdate> updateQueue = new ConcurrentLinkedQueue<>();
 
     public void reset() {
-        this.gameActionSequencer.clear();
+        this.gameEventSequencer.clear();
         this.playerRegistry.clear();
         // shouldn't do this -V- because we want to return to lobby after game ends
         // this.seatRegistry.reset();
@@ -53,11 +51,17 @@ public class Game {
     public synchronized boolean enqueue(GameEvent<?> gameEvent) {
         if (gameEvent == null)
             return false;
-    
-        return gameActionSequencer.enqueue(gameEvent);
+        
+        return gameEventSequencer.enqueue(gameEvent);
     }
 
-    // TODO: enqueue overload for GameTrigger
+    public synchronized boolean enqueue(PlayerAction pAction){
+        if (pAction == null
+        || !isValidPlayerAction(pAction))
+            return false;
+        
+        return gameEventSequencer.enqueue(pAction);
+    }
 
 
     /**

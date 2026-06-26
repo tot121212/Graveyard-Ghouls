@@ -1,12 +1,10 @@
 package com.totsnuk.graveyardghouls.pojo;
 
 import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
 
-import com.totsnuk.graveyardghouls.enums.InterruptState;
 import com.totsnuk.graveyardghouls.enums.LifecycleState;
+import com.totsnuk.graveyardghouls.enums.StackState;
 import com.totsnuk.graveyardghouls.events.EventDispatcher;
 import com.totsnuk.graveyardghouls.events.GameEvent;
 
@@ -35,32 +33,28 @@ public class GameState {
     /**
      * State of interrupt
      */
-    private InterruptState interruptState = InterruptState.INACTIVE;
+    private StackState stackState = StackState.INACTIVE;
     
-    public void setInterruptState(InterruptState state) {
-        this.interruptState = state;
-        eventBus.emit(this.interruptState);
+    public void setStackState(StackState state) {
+        this.stackState = state;
+        eventBus.emit(this.stackState);
     }
 
     /**
-     * When the realtime stack has elements, the gameLoop will wait for 3 seconds
-     * for the clients to send any addtional Realtimes
+     * When the realtime stack has specific elements, the gameLoop will wait for 3 seconds for the </br>
+     * clients to send any addtional Realtimes </br>
+     * This is dictated by certain parameters such as when someone actually has something they </br>
+     * are able to do on someone elses turn, etc.
      */
-    private final BlockingDeque<GameEvent<?>> realtimeStack = new LinkedBlockingDeque<>();
-
-    /**
-     * For now it will be limited to one element for ease of production
-     */
-    private final BlockingQueue<GameEvent<?>> staticQueue = new LinkedBlockingQueue<>();
+    private final BlockingDeque<GameEvent<?>> eventStack = new LinkedBlockingDeque<>();
 
     /**
      * Record type for storage of game state
      */
     public record GameStateRecord(
         LifecycleState lifecycle,
-        InterruptState interruptState,
-        BlockingDeque<GameEvent<?>> realtimeStack,
-        BlockingQueue<GameEvent<?>> staticQueue
+        StackState stackState,
+        BlockingDeque<GameEvent<?>> eventStack
     ){};
     
     /**
@@ -69,9 +63,8 @@ public class GameState {
     private GameStateRecord get(){
         return new GameStateRecord(
             this.lifecycle,
-            this.interruptState,
-            this.realtimeStack,
-            this.staticQueue
+            this.stackState,
+            this.eventStack
         );
     }
 }
